@@ -174,12 +174,13 @@ the AS and receive no hop-to-AS mapping in the report.
 
 ## Reading the routing map
 
-The routing map is a compact overview, not a topology diagram or geographic
-map.
+The routing map is a five-hop, full-width overview, not a topology diagram or
+geographic map.
 
 - The **selected origin** appears in the highlighted band on the right.
 - Columns to the left indicate networks one, two, or more AS hops before that
-  origin in displayed BGP or inferred mapping evidence.
+  origin in displayed BGP or inferred mapping evidence. The view always shows
+  adjacent through five-or-more-hop columns across the chart width.
 - Dashed edges are collector-observed BGP advertisements.
 - Solid edges are inferred only from reply-address prefix-origin mappings in IP
   mode.
@@ -188,12 +189,13 @@ map.
   This is a presentation rule, not a confidence score or a judgment about a
   network.
 - The evidence section and JSON/HTML exports retain their documented path
-  subsets even when the diagram omits lower-frequency nodes for readability.
+  subsets even when the map omits lower-frequency nodes for readability.
 
-Open **Interactive map** to select a displayed network. Selection dims unrelated
-displayed paths and opens a detail card with counts and the network's nearest
-displayed hop depth. Changing map layers does not alter the saved report model,
-source records, or calculations.
+Select a displayed network on the map to dim unrelated displayed paths and open
+a detail card with counts and the network's nearest displayed hop depth.
+Changing map layers does not alter the saved report model, source records, or
+calculations. Standalone HTML and PDF exports use a static version of the map so
+they can be read without the application.
 
 The map does not claim a packet path, an attack path, an AS relationship, router
 ownership, or a physical path. A network in the leftmost visible column is not
@@ -228,6 +230,11 @@ The **Adjacent network context** table reports two different measures:
   retained records with a preceding ASN.
 - **Inferred-sample fraction:** retained samples with a preceding mapped ASN
   divided by all retained samples with a preceding mapped ASN.
+
+On screen, the table initially shows the five networks with the most retained
+BGP records, then inferred samples, with ASN as the final tie-breaker. Expand
+**Show more adjacent networks** to review the rest. HTML, JSON, and PDF reports
+retain the complete table.
 
 The report records the numerators, denominators, units, and four-decimal
 rounding rule. These fractions are not traffic share, likelihood, confidence,
@@ -391,7 +398,9 @@ they are not live intelligence or an accuracy benchmark.
 
 The BGP Lookup project was used as a design reference only. Infrastructure
 Explorer is a standalone codebase and does not depend on a local BGP Lookup
-checkout.
+checkout. It includes a local copy of the supplied decorative Coquí artwork in
+the lower-right background; it is not loaded from the reference project at
+runtime.
 
 ## Data sources and terms
 

@@ -4,9 +4,12 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const html = fs.readFileSync(path.join(__dirname, 'probe_web/index.html'), 'utf8');
-assert.match(html, /id="staticMap"/);
-assert.match(html, /Open interactive map/);
-assert.match(html, /id="interactiveMap" hidden/);
+assert.match(html, /id="chart"/);
+assert.doesNotMatch(html, /id="staticMap"/);
+assert.doesNotMatch(html, /id="interactiveMap"/);
+assert.match(html, /class="coqui-background"/);
+assert.doesNotMatch(html, /class="coqui-mark"/);
+assert.match(html, /href="\/assets\/coqui\.png"/);
 const script = html.split('<script>')[1].split('</script>')[0];
 new vm.Script(script); // Check the complete UI script, including its event handlers.
 const names = ['targetLabel', 'targetContext', 'asEvidenceHTML', 'adjacencyTable',
@@ -52,4 +55,19 @@ context.crowded = {
 const crowdedSvg = vm.runInContext('chartSVG(crowded)', context);
 assert.match(crowdedSvg, /data-priority="context"/);
 assert.doesNotMatch(crowdedSvg, /AS64508/); // The overview limits low-frequency peers; captured paths remain in the report data.
+assert.match(crowdedSvg, /5\+ AS hops/); // The overview always reserves five horizontal hop columns.
+assert.match(crowdedSvg, /viewBox="0 0 1100 /); // The columns use a full-width, stable diagram frame.
+const staticCrowdedSvg = vm.runInContext('chartSVG(crowded, {static:true})', context);
+assert.doesNotMatch(staticCrowdedSvg, /role="button"/); // Static diagrams do not expose inactive controls.
+context.longAdjacencies = JSON.parse(JSON.stringify(fixtures[0]));
+context.longAdjacencies.routing_context.adjacencies = Array.from({length: 6}, (_, i) => ({
+  asn: 64501 + i, name: `Adjacent ${i + 1}`, data_paths: 0, data_share: null,
+  cp_routes: 6 - i, cp_share: 0.1, interpretation: "Context only.",
+}));
+const expandableAdjacencies = vm.runInContext('adjacencyTable(longAdjacencies, {collapsible:true})', context);
+assert.match(expandableAdjacencies, /Show 1 more adjacent network/);
+assert.match(expandableAdjacencies, /AS64501/);
+assert.match(expandableAdjacencies, /AS64506/);
+const fullAdjacencies = vm.runInContext('adjacencyTable(longAdjacencies)', context);
+assert.doesNotMatch(fullAdjacencies, /Show 1 more adjacent network/); // Exports retain the complete table.
 console.log('IP and ASN HTML exports preserve canonical evidence, escape names, and contain no action recommendations. UI syntax passed.');
