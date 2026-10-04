@@ -126,6 +126,11 @@ about people or organizations. Use independent records and authorized
 measurements when identity, traffic flow, ownership, provider status, or physical
 location matters. Missing data never proves safety, absence, or non-involvement.
 
+**Status:** Pathfinder is an AI-assisted proof of concept. AI assisted its
+development, but no AI is used at runtime to collect, evaluate, score, or
+interpret evidence, or to produce routing or enforcement assessments. Analysts
+remain responsible for reviewing every result alongside independent evidence.
+
 The app is a loopback-only local analyst prototype, not a shared service. It
 keeps completed jobs in memory for a limited time and clears them on restart;
 download reports you need to retain. Do not commit, publish, or share exports
