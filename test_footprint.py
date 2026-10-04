@@ -33,7 +33,7 @@ ANNOUNCED = [
 ]
 LOW_VISIBILITY = [("81.10.8.0/24", [64999], "LEAKY Leaked Route")]   # seen only below the default threshold
 
-NEIGHBOURS = {
+NEIGHBORS = {
     OWN_A: [{"asn": 1299, "type": "left", "power": 120, "v4_peers": 900, "v6_peers": 0},
             {"asn": 174, "type": "left", "power": 40, "v4_peers": 300, "v6_peers": 0},
             {"asn": OWN_B, "type": "right", "power": 5, "v4_peers": 12, "v6_peers": 0}],
@@ -54,7 +54,7 @@ class FakeRipe:
         self.count = 0
         self.max_related = 100
         self.fail_resources = set()
-        self.fail_neighbours = set()
+        self.fail_neighbors = set()
         self.holders = {}
 
     def table(self, min_peers):
@@ -95,13 +95,13 @@ class FakeRipe:
             return self.prefix_overview(q["resource"], q.get("min_peers_seeing"))
         if "asn-neighbours" in u.path:
             asn = int(q["resource"][2:])
-            if asn in self.fail_neighbours:
-                raise ps.ApiError(503, "fixture neighbour outage", url)
+            if asn in self.fail_neighbors:
+                raise ps.ApiError(503, "fixture neighbor outage", url)
             return {"version": "3.2", "messages": [["info", "Query time has been set to the latest available time"]],
                     "data": {"resource": str(asn), "query_starttime": "2026-10-04T00:00:00",
                              "query_endtime": "2026-10-04T00:00:00", "latest_time": "2026-10-04T00:00:00",
                              "neighbour_counts": {"left": 1, "right": 0, "unique": 1, "uncertain": 0},
-                             "neighbours": copy.deepcopy(NEIGHBOURS.get(asn, []))}}
+                             "neighbours": copy.deepcopy(NEIGHBORS.get(asn, []))}}
         if "as-overview" in u.path:
             return {"data": {"holder": f"Holder {q['resource']}"}}
         raise AssertionError(f"unexpected GET {url}")
@@ -310,31 +310,31 @@ class Adjacency(unittest.TestCase):
 
     def test_aggregated_view_and_record(self):
         rec, http = self.adjacency([OWN_A, OWN_B])
-        rows = {n["asn"]: n for n in rec["adjacency"]["neighbours"]}
+        rows = {n["asn"]: n for n in rec["adjacency"]["neighbors"]}
         self.assertEqual(set(rows), {1299, 174, OWN_B, 64999})
         self.assertEqual(rows[1299]["your_asn_count"], 2)
         self.assertEqual((rows[1299]["max_v4_peers"], rows[1299]["max_v6_peers"], rows[1299]["max_power"]), (900, 20, 120))
         self.assertEqual(rows[64999]["positions"], ["uncertain"])
         self.assertTrue(rows[OWN_B]["is_confirmed_asn"])
-        self.assertEqual(rec["adjacency"]["neighbours"][0]["asn"], 1299)          # shared neighbour first
+        self.assertEqual(rec["adjacency"]["neighbors"][0]["asn"], 1299)          # shared neighbor first
         self.assertEqual(rows[OWN_B]["name"], "EXAMPLE-ORG-EU Example Org Site B")  # holder from resolution
         self.assertNotIn(f"AS{OWN_B}", " ".join(http.queried("as-overview")))   # no extra lookup for known holders
         self.assertEqual(rec["confirmed_asns"], [OWN_A, OWN_B])
         self.assertEqual({o["asn"]: o["confirmed"] for o in rec["origins"]}, {OWN_A: True, OWN_B: True, CLOUD: False})
         self.assertIn("v4_peers", rec["adjacency"]["field_definitions"])
         self.assertIn("counts routes, not distinct peers", rec["adjacency"]["field_definitions"]["v4_peers"])
-        self.assertTrue(any("1 malformed neighbour record(s) for AS5555" in w for w in rec["warnings"]))
+        self.assertTrue(any("1 malformed neighbor record(s) for AS5555" in w for w in rec["warnings"]))
         self.assertEqual(rec["inputs"]["accepted"], 5)
-        self.assertEqual(rec["sources"]["asn_neighbours"]["query_times"], ["2026-10-04T00:00:00"])
+        self.assertEqual(rec["sources"]["asn_neighbors"]["query_times"], ["2026-10-04T00:00:00"])
         self.assertEqual(rec["requests"]["resolution"], self.resolution.result["requests"])
         self.assertTrue(any("2 of them" not in s and "1 of them is adjacent to more than one" in s for s in rec["summary"]))
         forbidden = ("suspicious", "risk", "unexpected", "should", "block")
         self.assertFalse(any(word in " ".join(rec["summary"]).lower() for word in forbidden))
         json.dumps(rec)
 
-    def test_unavailable_neighbours_are_unknown_not_empty(self):
+    def test_unavailable_neighbors_are_unknown_not_empty(self):
         http = FakeRipe()
-        http.fail_neighbours = {OWN_B}
+        http.fail_neighbors = {OWN_B}
         rec, _ = self.adjacency([OWN_A, OWN_B], http)
         per = {p["asn"]: p for p in rec["adjacency"]["per_asn"]}
         self.assertEqual(per[OWN_B]["source"]["status"], "unavailable")
@@ -346,7 +346,7 @@ class Adjacency(unittest.TestCase):
         with patch.object(ps, "MAX_FOOTPRINT_NAMES", 3):
             rec, http = self.adjacency([CLOUD])
         self.assertEqual(len(http.queried("as-overview")), 3)
-        self.assertTrue(any("for 3 of 20 neighbours" in w for w in rec["warnings"]))
+        self.assertTrue(any("for 3 of 20 neighbors" in w for w in rec["warnings"]))
         rec["origins"][0]["holder"] = "changed"
         self.assertEqual(self.resolution.result, before)
 

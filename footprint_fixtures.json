@@ -595,7 +595,7 @@
           "asn": 3333,
           "holder": "EXAMPLE-ORG-NET Example Org Site A",
           "source": {
-            "name": "RIPEstat asn-neighbours",
+            "name": "RIPEstat ASN Neighbors",
             "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS3333&sourceapp=mucaro-infrastructure-explorer",
             "status": "available",
             "retrieved_at": "2026-10-04T16:00:00Z",
@@ -606,7 +606,7 @@
             "messages": [
               "Query time has been set to the latest available time"
             ],
-            "neighbour_counts": {
+            "neighbor_counts": {
               "left": 1,
               "right": 0,
               "unique": 1,
@@ -615,7 +615,7 @@
             "excluded": 0,
             "truncated": false
           },
-          "neighbours": [
+          "neighbors": [
             {
               "asn": 174,
               "type": "left",
@@ -643,7 +643,7 @@
           "asn": 5555,
           "holder": "<script>untrusted</script> Example Org Site B",
           "source": {
-            "name": "RIPEstat asn-neighbours",
+            "name": "RIPEstat ASN Neighbors",
             "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS5555&sourceapp=mucaro-infrastructure-explorer",
             "status": "available",
             "retrieved_at": "2026-10-04T16:00:00Z",
@@ -654,7 +654,7 @@
             "messages": [
               "Query time has been set to the latest available time"
             ],
-            "neighbour_counts": {
+            "neighbor_counts": {
               "left": 1,
               "right": 0,
               "unique": 1,
@@ -663,7 +663,7 @@
             "excluded": 1,
             "truncated": false
           },
-          "neighbours": [
+          "neighbors": [
             {
               "asn": 1299,
               "type": "left",
@@ -681,7 +681,7 @@
           ]
         }
       ],
-      "neighbours": [
+      "neighbors": [
         {
           "asn": 1299,
           "name": "Holder AS1299",
@@ -775,9 +775,9 @@
         }
       ],
       "field_definitions": {
-        "position": "RIPEstat asn-neighbours 'type'. left: the neighbour appears before your ASN in observed AS paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the left only as a direct peer of a RIS route collector.",
-        "power": "RIPEstat 'power': the number of AS paths containing this neighbour relationship with the stated position.",
-        "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbour relationship seen by RIS peers. Despite the field name, this counts routes, not distinct peers.",
+        "position": "RIPEstat ASN Neighbors 'type' field. left: the neighbor appears before your ASN in observed AS paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the left only as a direct peer of a RIS route collector.",
+        "power": "RIPEstat 'power': the number of AS paths containing this neighbor relationship with the stated position.",
+        "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbor relationship seen by RIS peers. Despite the field name, this counts routes, not distinct peers.",
         "v6_peers": "RIPEstat 'v6_peers': the same count for IPv6 routes."
       }
     },
@@ -793,8 +793,8 @@
         "filtered_routes": 0,
         "messages": []
       },
-      "asn_neighbours": {
-        "name": "RIPEstat asn-neighbours",
+      "asn_neighbors": {
+        "name": "RIPEstat ASN Neighbors",
         "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS%7Basn%7D&sourceapp=mucaro-infrastructure-explorer",
         "query_times": [
           "2026-10-04T00:00:00"
@@ -803,22 +803,22 @@
     },
     "summary": [
       "7 footprint entries map to 4 origin ASNs; 2 confirmed as yours.",
-      "RIS observes 4 distinct networks adjacent to the confirmed ASNs (RIPEstat asn-neighbours, 2026-10-04T00:00:00).",
+      "RIS observes 4 distinct networks adjacent to the confirmed ASNs (RIPEstat ASN Neighbors, 2026-10-04T00:00:00).",
       "1 of them is adjacent to more than one confirmed ASN.",
       "Adjacency is observed BGP position. It does not establish a business relationship, traffic share, ownership or intent."
     ],
     "warnings": [
-      "1 malformed neighbour record(s) for AS5555 were excluded."
+      "1 malformed neighbor record(s) for AS5555 were excluded."
     ],
     "methodology": [
       "Pathfinder reads public RIPE data only. It does not contact any host in the footprint or schedule measurements.",
       "Each entry is resolved with RIPEstat prefix-overview to the announced prefix covering it and that prefix's origin ASN(s). A prefix entry that contains more-specific announcements is mapped to their origins as well.",
       "A resolved covering prefix is reused for later entries only when it was read directly, its list of more-specific announcements is complete, and the entry falls outside all of them.",
       "RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold unless low-visibility routes are included. The threshold and the number of filtered routes are recorded with the run.",
-      "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed are queried for neighbours; the rest stay in the record.",
-      "Adjacency comes from RIPEstat asn-neighbours: BGP neighbours of each confirmed ASN as observed by RIS. Position, path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic share, ownership or intent.",
+      "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed are queried for neighbors; the rest stay in the record.",
+      "Adjacency comes from RIPEstat ASN Neighbors: BGP neighbors of each confirmed ASN as observed by RIS. Position, path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic share, ownership or intent.",
       "Route collectors do not see every session. Private peering and sessions whose routes are not propagated toward RIS peers can be missing.",
-      "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbours belong to the provider.",
+      "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbors belong to the provider.",
       "This record is a point-in-time snapshot. Source times are recorded per lookup."
     ],
     "requests": {

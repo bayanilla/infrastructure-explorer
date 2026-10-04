@@ -14,7 +14,7 @@ Standard library only. Python 3.10+.
 
 Investigation inputs remain local except for public-data lookups sent to RIPE.
 Footprint mode resolves each entry to its origin ASN and reads RIS-observed
-neighbours for the ASNs the analyst confirms.
+neighbors for the ASNs the analyst confirms.
 
 API keys and active measurements are not accepted. Responses are cached only
 within one run, so every run re-reads its sources and retrieval times are true.
@@ -1166,7 +1166,7 @@ def run_job(job: Job, params: dict, http: Http) -> None:
 # Input is an analyst's external footprint (for example an Expanse export reduced to
 # one column of IPs and prefixes). Pathfinder resolves each entry to the announced
 # prefix and origin ASN that public routing data shows for it, lets the analyst
-# confirm which origin ASNs are theirs, then reads RIS-observed neighbours for those
+# confirm which origin ASNs are theirs, then reads RIS-observed neighbors for those
 # ASNs only. Nothing is ranked, flagged or interpreted; every count keeps RIPE's own
 # field name and documented meaning.
 
@@ -1176,18 +1176,18 @@ MAX_REJECTED_LISTED = 500
 MAX_RESOLVE_LOOKUPS = 2500
 MAX_RANGE_EXPANSION = 100
 MAX_CONFIRMED_ASNS = 50
-MAX_NEIGHBOURS_PER_ASN = 5000
+MAX_NEIGHBORS_PER_ASN = 5000
 MAX_FOOTPRINT_NAMES = 150
 MAX_INPUTS_PER_ORIGIN = 200
 MIN_PREFIXLEN = {4: 8, 6: 16}
 _THRESHOLD = re.compile(r"min peers:\s*(\d+)", re.I)
 
 FOOTPRINT_FIELDS = {
-    "position": "RIPEstat asn-neighbours 'type'. left: the neighbour appears before your ASN in observed AS "
+    "position": "RIPEstat ASN Neighbors 'type' field. left: the neighbor appears before your ASN in observed AS "
                 "paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the "
                 "left only as a direct peer of a RIS route collector.",
-    "power": "RIPEstat 'power': the number of AS paths containing this neighbour relationship with the stated position.",
-    "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbour relationship seen by RIS peers. "
+    "power": "RIPEstat 'power': the number of AS paths containing this neighbor relationship with the stated position.",
+    "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbor relationship seen by RIS peers. "
                 "Despite the field name, this counts routes, not distinct peers.",
     "v6_peers": "RIPEstat 'v6_peers': the same count for IPv6 routes.",
 }
@@ -1201,13 +1201,13 @@ FOOTPRINT_METHODOLOGY = [
     "RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold unless low-visibility routes "
     "are included. The threshold and the number of filtered routes are recorded with the run.",
     "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed "
-    "are queried for neighbours; the rest stay in the record.",
-    "Adjacency comes from RIPEstat asn-neighbours: BGP neighbours of each confirmed ASN as observed by RIS. Position, "
+    "are queried for neighbors; the rest stay in the record.",
+    "Adjacency comes from RIPEstat ASN Neighbors: BGP neighbors of each confirmed ASN as observed by RIS. Position, "
     "path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic "
     "share, ownership or intent.",
     "Route collectors do not see every session. Private peering and sessions whose routes are not propagated "
     "toward RIS peers can be missing.",
-    "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbours belong to the provider.",
+    "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbors belong to the provider.",
     "This record is a point-in-time snapshot. Source times are recorded per lookup.",
 ]
 
@@ -1574,20 +1574,22 @@ def _count(v) -> bool:
     return isinstance(v, int) and not isinstance(v, bool) and v >= 0
 
 
-def read_neighbours(http, asn, job) -> dict:
+def read_neighbors(http, asn, job) -> dict:
     url = stat_url("asn-neighbours", resource=f"AS{asn}")
-    source = {"name": "RIPEstat asn-neighbours", "url": url, "status": "unavailable", "retrieved_at": None,
+    source = {"name": "RIPEstat ASN Neighbors", "url": url, "status": "unavailable", "retrieved_at": None,
               "query_starttime": None, "query_endtime": None, "latest_time": None, "version": None,
-              "messages": [], "neighbour_counts": None, "excluded": 0, "truncated": False}
+              "messages": [], "neighbor_counts": None, "excluded": 0, "truncated": False}
     try:
         resp = http.get_json(url, job=job)
     except ApiError as e:
         source["error"] = e.detail
-        return {"source": source, "neighbours": []}
+        return {"source": source, "neighbors": []}
     data = resp.get("data") if isinstance(resp, dict) else None
+    # RIPE's response schema uses British spelling. Normalize it at this adapter
+    # boundary so Pathfinder's own report model consistently uses “neighbors”.
     if not isinstance(data, dict) or not isinstance(data.get("neighbours"), list):
         source["error"] = "Unsupported response."
-        return {"source": source, "neighbours": []}
+        return {"source": source, "neighbors": []}
     out = []
     for n in data["neighbours"]:
         if (isinstance(n, dict) and _count(n.get("asn")) and 1 <= n["asn"] <= 4294967295
@@ -1600,20 +1602,20 @@ def read_neighbours(http, asn, job) -> dict:
     source.update(status="available", retrieved_at=utc_now(), version=resp.get("version"),
                   query_starttime=data.get("query_starttime"), query_endtime=data.get("query_endtime"),
                   latest_time=data.get("latest_time"),
-                  neighbour_counts=data.get("neighbour_counts") if isinstance(data.get("neighbour_counts"), dict) else None,
+                  neighbor_counts=data.get("neighbour_counts") if isinstance(data.get("neighbour_counts"), dict) else None,
                   messages=[m[1][:300] for m in resp.get("messages") or []
                             if isinstance(m, (list, tuple)) and len(m) == 2 and isinstance(m[1], str)])
-    if len(out) > MAX_NEIGHBOURS_PER_ASN:
+    if len(out) > MAX_NEIGHBORS_PER_ASN:
         source["truncated"] = True
-        out = out[:MAX_NEIGHBOURS_PER_ASN]
+        out = out[:MAX_NEIGHBORS_PER_ASN]
     out.sort(key=lambda n: (n["asn"], n["type"]))
-    return {"source": source, "neighbours": out}
+    return {"source": source, "neighbors": out}
 
 
-def aggregate_neighbours(per_asn, confirmed) -> list[dict]:
+def aggregate_neighbors(per_asn, confirmed) -> list[dict]:
     rows: dict[int, dict] = {}
     for entry in per_asn:
-        for n in entry["neighbours"]:
+        for n in entry["neighbors"]:
             r = rows.setdefault(n["asn"], {"asn": n["asn"], "name": None, "relations": [],
                                            "is_confirmed_asn": n["asn"] in confirmed})
             r["relations"].append({"your_asn": entry["asn"], "type": n["type"], "power": n["power"],
@@ -1663,42 +1665,42 @@ def run_footprint_adjacency(job, params, http):
     per_asn, warnings = [], list(resolution["warnings"])
     for i, asn in enumerate(confirmed, 1):
         job.check()
-        job.say(f"Reading observed neighbours for AS{asn} ({i} of {len(confirmed)})")
-        got = read_neighbours(http, asn, job)
+        job.say(f"Reading observed neighbors for AS{asn} ({i} of {len(confirmed)})")
+        got = read_neighbors(http, asn, job)
         per_asn.append({"asn": asn, "holder": holders.get(asn), **got})
         if got["source"]["status"] != "available":
-            warnings.append(f"Neighbour data for AS{asn} is unavailable ({got['source'].get('error') or 'no detail'}). "
-                            "Its neighbours are unknown, not absent.")
+            warnings.append(f"Neighbor data for AS{asn} is unavailable ({got['source'].get('error') or 'no detail'}). "
+                            "Its neighbors are unknown, not absent.")
         if got["source"]["excluded"]:
-            warnings.append(f"{got['source']['excluded']} malformed neighbour record(s) for AS{asn} were excluded.")
+            warnings.append(f"{got['source']['excluded']} malformed neighbor record(s) for AS{asn} were excluded.")
         if got["source"]["truncated"]:
-            warnings.append(f"AS{asn} has more than {MAX_NEIGHBOURS_PER_ASN} neighbours; the record keeps the first "
-                            f"{MAX_NEIGHBOURS_PER_ASN} by ASN.")
-    neighbours = aggregate_neighbours(per_asn, set(confirmed))
+            warnings.append(f"AS{asn} has more than {MAX_NEIGHBORS_PER_ASN} neighbors; the record keeps the first "
+                            f"{MAX_NEIGHBORS_PER_ASN} by ASN.")
+    neighbors = aggregate_neighbors(per_asn, set(confirmed))
     names = {a: h for a, h in holders.items() if h}
-    wanted = [n["asn"] for n in neighbours if n["asn"] not in names and public_asn(n["asn"])]
+    wanted = [n["asn"] for n in neighbors if n["asn"] not in names and public_asn(n["asn"])]
     if len(wanted) > MAX_FOOTPRINT_NAMES:
-        warnings.append(f"Holder names were looked up for {MAX_FOOTPRINT_NAMES} of {len(wanted)} neighbours, in table "
+        warnings.append(f"Holder names were looked up for {MAX_FOOTPRINT_NAMES} of {len(wanted)} neighbors, in table "
                         "order; the rest show the ASN only.")
     for i, a in enumerate(wanted[:MAX_FOOTPRINT_NAMES], 1):
         job.check()
-        job.set_progress(f"Naming neighbours ({i} of {min(len(wanted), MAX_FOOTPRINT_NAMES)}): AS{a}")
+        job.set_progress(f"Naming neighbors ({i} of {min(len(wanted), MAX_FOOTPRINT_NAMES)}): AS{a}")
         name = as_name(http, a, job)
         if name:
             names[a] = name
-    for n in neighbours:
+    for n in neighbors:
         n["name"] = names.get(n["asn"])
     available = [p for p in per_asn if p["source"]["status"] == "available"]
     times = sorted({p["source"]["query_starttime"] for p in available if p["source"]["query_starttime"]})
-    shared = sum(1 for n in neighbours if n["your_asn_count"] > 1)
+    shared = sum(1 for n in neighbors if n["your_asn_count"] > 1)
     summary = [f"{resolution['inputs']['accepted']} footprint entries map to {len(resolution['origins'])} origin "
                f"ASN{'s' if len(resolution['origins']) != 1 else ''}; {len(confirmed)} confirmed as yours.",
-               f"RIS observes {len(neighbours)} distinct network{'s' if len(neighbours) != 1 else ''} adjacent to the "
-               f"confirmed ASNs" + (f" (RIPEstat asn-neighbours, {', '.join(times)})." if times else ".")]
+               f"RIS observes {len(neighbors)} distinct network{'s' if len(neighbors) != 1 else ''} adjacent to the "
+               f"confirmed ASNs" + (f" (RIPEstat ASN Neighbors, {', '.join(times)})." if times else ".")]
     if shared:
         summary.append(f"{shared} of them {'is' if shared == 1 else 'are'} adjacent to more than one confirmed ASN.")
     if len(available) != len(per_asn):
-        summary.append(f"Neighbour data is unavailable for {len(per_asn) - len(available)} confirmed ASN(s).")
+        summary.append(f"Neighbor data is unavailable for {len(per_asn) - len(available)} confirmed ASN(s).")
     summary.append("Adjacency is observed BGP position. It does not establish a business relationship, traffic share, "
                    "ownership or intent.")
     origins = [{**o, "confirmed": o["asn"] in confirmed} for o in resolution["origins"]]
@@ -1712,9 +1714,9 @@ def run_footprint_adjacency(job, params, http):
         "status_counts": resolution["status_counts"],
         "origins": origins,
         "confirmed_asns": confirmed,
-        "adjacency": {"per_asn": per_asn, "neighbours": neighbours, "field_definitions": FOOTPRINT_FIELDS},
+        "adjacency": {"per_asn": per_asn, "neighbors": neighbors, "field_definitions": FOOTPRINT_FIELDS},
         "sources": {**resolution["sources"],
-                    "asn_neighbours": {"name": "RIPEstat asn-neighbours",
+                    "asn_neighbors": {"name": "RIPEstat ASN Neighbors",
                                        "url": stat_url("asn-neighbours", resource="AS{asn}"),
                                        "query_times": times}},
         "summary": summary,

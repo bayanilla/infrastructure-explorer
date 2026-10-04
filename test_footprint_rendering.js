@@ -55,7 +55,7 @@ assert.doesNotMatch(confirm, forbidden);
 const report = run('footprintReportHTML(fxRecord, {interactive: true})', {fxRecord});
 assert.doesNotMatch(report, /<script>untrusted/);
 assert.match(report, /&lt;script&gt;untrusted&lt;\/script&gt;/);
-assert.match(report, /<svg[^>]+aria-label="Observed BGP neighbours of 2 confirmed ASNs"/);
+assert.match(report, /<svg[^>]+aria-label="Observed BGP neighbors of 2 confirmed ASNs"/);
 assert.match(report, /<span class="nm">Your confirmed ASN<\/span>/);
 assert.match(report, /Despite the field name, this counts routes, not distinct peers\./);
 assert.equal((report.match(/class="asn-section"/g) || []).length, 2);
@@ -66,29 +66,43 @@ assert.doesNotMatch(report, forbidden);
 const printable = run('footprintReportHTML(fxRecord)', {fxRecord});
 assert.doesNotMatch(printable, /class="quiet drill"|id="fpJson"/); // Static rendering has no live controls.
 
-// The combined view stops at 5 ASNs or 40 neighbours.
+// Older exports used the British-spelled report fields. They still reopen and
+// are normalized before rendering or re-exporting.
+const legacy = JSON.parse(JSON.stringify(fxRecord));
+legacy.adjacency.neighbours = legacy.adjacency.neighbors; delete legacy.adjacency.neighbors;
+for (const item of legacy.adjacency.per_asn) {
+  item.neighbours = item.neighbors; delete item.neighbors;
+  item.source.neighbour_counts = item.source.neighbor_counts; delete item.source.neighbor_counts;
+}
+legacy.sources.asn_neighbours = legacy.sources.asn_neighbors; delete legacy.sources.asn_neighbors;
+const normalized = run('normalizeFootprintRecord(legacy)', {legacy});
+assert.ok(Array.isArray(normalized.adjacency.neighbors));
+assert.ok(normalized.adjacency.per_asn.every(p => Array.isArray(p.neighbors)));
+assert.ok(normalized.sources.asn_neighbors);
+
+// The combined view stops at 5 ASNs or 40 neighbors.
 const crowded = JSON.parse(JSON.stringify(fxRecord));
 crowded.confirmed_asns = [1, 2, 3, 4, 5, 6];
-assert.match(run('footprintReportHTML(crowded)', {crowded}), /drawn for up to 5 confirmed ASNs and 40 neighbours/);
+assert.match(run('footprintReportHTML(crowded)', {crowded}), /drawn for up to 5 confirmed ASNs and 40 neighbors/);
 
 // Sorting is analyst-driven and stable on ASN.
-const byName = run('sortedNeighbours(fxRecord.adjacency.neighbours, {key: "name", dir: 1}).map(n => n.asn)', {fxRecord});
+const byName = run('sortedNeighbors(fxRecord.adjacency.neighbors, {key: "name", dir: 1}).map(n => n.asn)', {fxRecord});
 assert.deepEqual([...byName], [64999, 5555, 174, 1299]); // "" < "<script…" < "=hyperlink…" < "holder…"
-const byRoutes = run('sortedNeighbours(fxRecord.adjacency.neighbours, {key: "max_v4_peers", dir: -1}).map(n => n.asn)', {fxRecord});
+const byRoutes = run('sortedNeighbors(fxRecord.adjacency.neighbors, {key: "max_v4_peers", dir: -1}).map(n => n.asn)', {fxRecord});
 assert.deepEqual([...byRoutes], [1299, 174, 5555, 64999]);
-const sorted = run('neighboursTableHTML(fxRecord, {key: "max_power", dir: -1})', {fxRecord});
+const sorted = run('neighborsTableHTML(fxRecord, {key: "max_power", dir: -1})', {fxRecord});
 assert.match(sorted, /aria-sort="descending"><button type="button" class="sortbtn" data-sort="max_power"/);
 
 // Large tables are capped on screen, never in exports.
 const big = JSON.parse(JSON.stringify(fxRecord));
-big.adjacency.neighbours = Array.from({length: 1005}, (_, i) => ({...fxRecord.adjacency.neighbours[0], asn: 70000 + i}));
-assert.match(run('neighboursTableHTML(big)', {big}), /Showing 1,000 of 1,005 neighbours/);
+big.adjacency.neighbors = Array.from({length: 1005}, (_, i) => ({...fxRecord.adjacency.neighbors[0], asn: 70000 + i}));
+assert.match(run('neighborsTableHTML(big)', {big}), /Showing 1,000 of 1,005 neighbors/);
 
 // CSV exports: every relation, formula-safe cells, doubled quotes.
 const adjacency = run('adjacencyCSV(fxRecord)', {fxRecord}).trim().split('\r\n');
-const relations = fxRecord.adjacency.per_asn.reduce((n, p) => n + p.neighbours.length, 0);
+const relations = fxRecord.adjacency.per_asn.reduce((n, p) => n + p.neighbors.length, 0);
 assert.equal(adjacency.length, relations + 1);
-assert.match(adjacency[0], /^"your_asn","your_asn_holder","neighbour_asn"/);
+assert.match(adjacency[0], /^"your_asn","your_asn_holder","neighbor_asn"/);
 const formulaRow = adjacency.find(l => l.includes('HYPERLINK'));
 assert.match(formulaRow, /"'=HYPERLINK\(""http:\/\/evil\.example"",""x""\)"/);
 assert.doesNotMatch(adjacency.join('\n'), /(^|,)"=/m);
