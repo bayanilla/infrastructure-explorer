@@ -8,6 +8,11 @@ organization's external footprint. It resolves public routing identity, preserve
 the source records and times behind each finding, and presents the context in a
 reviewable report.
 
+> **Project status:** Pathfinder is an AI-assisted proof of concept. AI assisted
+> its development, but no AI is used at runtime to collect, evaluate, score, or
+> interpret evidence, or to produce routing or enforcement assessments. Analysts
+> remain responsible for reviewing every result alongside independent evidence.
+
 It is a passive, local tool. It does **not** contact the IP or network under
 review, send a traceroute, scan, probe, make a DNS request, or recommend a block.
 It cannot establish who is behind an address, the route a packet took, a provider
@@ -125,11 +130,6 @@ Pathfinder reports public observations and explicit inference, not conclusions
 about people or organizations. Use independent records and authorized
 measurements when identity, traffic flow, ownership, provider status, or physical
 location matters. Missing data never proves safety, absence, or non-involvement.
-
-**Status:** Pathfinder is an AI-assisted proof of concept. AI assisted its
-development, but no AI is used at runtime to collect, evaluate, score, or
-interpret evidence, or to produce routing or enforcement assessments. Analysts
-remain responsible for reviewing every result alongside independent evidence.
 
 The app is a loopback-only local analyst prototype, not a shared service. It
 keeps completed jobs in memory for a limited time and clears them on restart;
