@@ -1,9 +1,8 @@
-# Múcaro | Infrastructure Explorer
+# Múcaro | Pathfinder
 
-**A passive, evidence-preserving view of the public routing context around an IP
-address or ASN.**
+**Public routing context for IPs and networks.**
 
-Infrastructure Explorer helps an analyst start with an IP observed at a
+Múcaro | Pathfinder helps an analyst start with an IP observed at a
 perimeter, identify its announced prefix and selected origin ASN, then review
 public routing observations and existing measurement samples. An analyst can
 then explore that ASN for broader routing context.

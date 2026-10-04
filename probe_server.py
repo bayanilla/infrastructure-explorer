@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Múcaro | Infrastructure Explorer
+Múcaro | Pathfinder — Public routing context for IPs and networks
 
 Passive infrastructure context from RIPEstat BGP observations and existing RIPE
 Atlas samples. IP/prefix lookup is primary; ASN exploration is broader context.
@@ -823,7 +823,7 @@ def analyze(*, target_input, target_ip, origin, traces, probe_meta, ipmap, cp_ro
 
     return {
         "meta": {
-            "tool": "Múcaro infrastructure explorer",
+            "tool": "Múcaro | Pathfinder",
             "version": VERSION,
             "generated_utc": utc_now(),
             "target_input": target_input,
@@ -1127,7 +1127,7 @@ CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = f"MucaroExplorer/{VERSION}"
+    server_version = f"MucaroPathfinder/{VERSION}"
 
     def log_message(self, fmt, *args):  # paths only; request bodies are never logged
         print(f"{self.address_string()} {self.command} {urllib.parse.urlsplit(self.path).path} {args[1] if len(args) > 1 else ''}")
@@ -1210,7 +1210,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Múcaro infrastructure explorer")
+    ap = argparse.ArgumentParser(description="Múcaro | Pathfinder: public routing context for IPs and networks")
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     ap.add_argument("--pause", type=float, default=2.0,
                     help="seconds between RIPE requests (minimum 2.0)")
