@@ -35,14 +35,14 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 h1,h2,h3{font-family:var(--f-head);letter-spacing:0;margin:0;line-height:1.4}
 h1{font-size:26px;font-weight:400} h2{font-size:16px;font-weight:600;margin-bottom:8px} h3{font-size:14px;font-weight:600;margin:20px 0 8px}
 code,.mono,.path{font-family:var(--f-data);font-size:12px;overflow-wrap:anywhere}
-.masthead{max-width:1440px;margin:auto;padding:28px 32px 20px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--border)}
+.masthead{position:relative;z-index:1;max-width:1440px;margin:auto;padding:28px 32px 20px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--border)}
 .masthead strong{font-weight:700}.masthead .brand-divider{padding:0 6px;color:var(--secondary)}.masthead .brand-title{color:var(--secondary)}
 .masthead p{margin:6px 0 0;color:var(--muted);font-size:12px}
 .masthead .sib{font-size:12px;white-space:nowrap}
-.masthead-tools{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap}
+.masthead-tools{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap}.coqui-background{position:fixed;right:22px;bottom:18px;z-index:0;width:clamp(120px,16vw,220px);height:auto;color:var(--accent);opacity:.045;pointer-events:none;user-select:none}
 .theme-picker{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);white-space:nowrap}
 .theme-picker select{width:150px;min-height:36px;padding:6px 9px;font-size:12px}
-.shell{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;max-width:1440px;margin:0 auto;padding:26px 32px 48px;min-height:calc(100vh - 110px)}
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;max-width:1440px;margin:0 auto;padding:26px 32px 48px;min-height:calc(100vh - 110px)}
 .plan{align-self:start;min-width:0;padding:0 24px 24px 0;border-right:1px solid var(--border);background:transparent}
 .plan h2{font-size:16px;margin-bottom:18px}
 .field{margin:18px 0}
@@ -83,7 +83,7 @@ td{background:var(--surface);border-bottom:1px solid var(--border-subtle);paddin
 .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid var(--border-strong);white-space:nowrap}.tag.high,.tag.medium{color:var(--warning)}.tag.review,.tag.self{color:var(--muted)}
 .locus{font-weight:600;color:var(--accent)}.bar{height:4px;background:var(--border);border-radius:3px;margin-top:7px;min-width:80px}.bar i{display:block;height:100%;border-radius:3px}
 .blockbox{display:grid;gap:10px}.blockbox .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.blockbox select{width:auto;max-width:100%}.blockbox textarea{min-height:150px}
-.chartwrap{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:12px;overflow-x:auto}.chartbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 12px;font-size:11px;color:var(--secondary)}
+.chartwrap{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:12px;overflow-x:auto}.chartwrap svg{display:block;width:100%;height:auto;min-width:820px}.chartbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 12px;font-size:11px;color:var(--secondary)}
 .key{display:inline-flex;align-items:center;gap:6px}.key svg{flex:none}#chart svg{display:block}#chart .node{cursor:pointer}#chart .node:focus{outline:none}#chart .node:focus circle,#chart .node:focus rect{stroke:var(--focus);stroke-width:3}#chart .dim{opacity:.13}
 .nodecard{margin-top:12px;padding:12px 16px;border:1px solid var(--border-strong);border-left:3px solid var(--accent);border-radius:5px;background:var(--surface);max-width:72ch;font-size:12px}.nodecard:empty{display:none}
 details{margin-top:12px;border:1px solid var(--border);border-radius:5px}summary{cursor:pointer;padding:12px 14px;color:var(--secondary);font-size:12px;font-weight:500}details>p,details>.hops{padding:0 14px}details>details{margin:0 12px 12px}details>.tablewrap{border:0;border-top:1px solid var(--border);border-radius:0}
@@ -91,15 +91,22 @@ details{margin-top:12px;border:1px solid var(--border);border-radius:5px}summary
 .exports{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.toast{position:fixed;bottom:18px;right:18px;background:var(--raised);border:1px solid var(--border-strong);color:var(--text);padding:10px 16px;border-radius:12px;font-size:12px;opacity:0;transition:opacity .2s}.toast.on{opacity:1}
 [hidden]{display:none!important}
 @media(max-width:900px){.shell{grid-template-columns:260px minmax(0,1fr);gap:22px}.plan{padding-right:18px}.masthead{align-items:flex-start}.masthead .sib{white-space:normal}}
-@media(max-width:720px){.masthead{padding:20px 16px;flex-direction:column;gap:12px}.masthead h1{font-size:24px}.shell{grid-template-columns:1fr;padding:20px 16px 36px;gap:26px}.plan{border-right:0;border-bottom:1px solid var(--border);padding:0 0 22px}.actions #run{flex:1}.empty h2{font-size:21px}.chartbar{gap:10px}.exports button{flex:1}td,th{padding:10px 12px}}
+@media(max-width:720px){.masthead{padding:20px 16px;flex-direction:column;gap:12px}.masthead h1{font-size:24px}.masthead-tools{width:100%;justify-content:space-between}.coqui-background{right:10px;bottom:10px;width:110px;opacity:.035}.shell{grid-template-columns:1fr;padding:20px 16px 36px;gap:26px}.plan{border-right:0;border-bottom:1px solid var(--border);padding:0 0 22px}.actions #run{flex:1}.empty h2{font-size:21px}.chartbar{gap:10px}.exports button{flex:1}td,th{padding:10px 12px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
  :root,:root[data-probe-theme]{color-scheme:light;--bg:#fff;--surface:#fff;--raised:#eee;--text:#17212c;--text-strong:#17212c;--secondary:#53676a;--muted:#53676a;--border:#9a8b72;--border-strong:#766850;--border-subtle:#cbbda5;--accent:#006d77;--accent-hover:#006d77;--warning:#a15c00}
- .plan,.masthead-tools,.exports,.chartbar input,.blockbox .row,button,.toast{display:none!important}.shell{display:block;max-width:none;padding:0}.masthead{padding:0 0 16px;margin-bottom:20px}main{padding:0}details{display:block}details>*{display:block}.chartwrap{overflow:visible}#chart svg{max-width:100%;height:auto}.tablewrap{overflow:visible}tr:hover td{background:var(--surface)}
+ .plan,.masthead-tools,.coqui-background,.exports,.chartbar input,.blockbox .row,button,.toast{display:none!important}.shell{display:block;max-width:none;padding:0}.masthead{padding:0 0 16px;margin-bottom:20px}main{padding:0}details{display:block}details>*{display:block}.chartwrap{overflow:visible}#chart svg{max-width:100%;height:auto}.tablewrap{overflow:visible}tr:hover td{background:var(--surface)}
 }
 </style>
 </head>
 <body>
+<svg class="coqui-background" viewBox="40 140 420 425" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="coqui-invert" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0"/></filter>
+    <mask id="coqui-mask" maskUnits="userSpaceOnUse" x="40" y="140" width="420" height="425"><image width="570" height="738" href="/assets/coqui.png" filter="url(#coqui-invert)"/></mask>
+  </defs>
+  <rect x="40" y="140" width="420" height="425" fill="currentColor" mask="url(#coqui-mask)"/>
+</svg>
 <header class="masthead">
   <div>
     <h1><strong>Múcaro</strong><span class="brand-divider"> | </span><span class="brand-title">Infrastructure Explorer</span></h1>
@@ -287,14 +294,19 @@ function asEvidenceHTML(r){
 }
 
 /* ---------- Shared report sections: UI and exports use identical context ---------- */
-function adjacencyTable(r){
+function adjacencyTable(r, opts = {}){
   const rows = r.routing_context.adjacencies;
   const mapped = r.meta.target_kind !== "asn" && r.traces.length > 0;
   const calculation = r.routing_context.calculations;
+  const table = displayed => `<div class="tablewrap"><table><thead><tr><th>Network</th>${mapped ? "<th>Inferred samples</th>" : ""}<th>BGP records</th><th>Interpretation</th></tr></thead><tbody>
+    ${displayed.map(x=>`<tr><td>${asLabel(x.asn,x.name)}</td>${mapped ? `<td class="num">${x.data_paths} · ${x.data_share == null ? "unknown" : pct(x.data_share)}</td>` : ""}<td class="num">${x.cp_routes == null ? "unknown" : x.cp_routes} · ${x.cp_share == null ? "unknown" : pct(x.cp_share)}</td><td>${esc(x.interpretation)}</td></tr>`).join("")}</tbody></table></div>`;
+  const top = rows.slice(0, 5), remaining = rows.slice(5);
+  const display = opts.collapsible && remaining.length
+    ? `${table(top)}<details><summary>Show ${remaining.length} more adjacent network${remaining.length === 1 ? "" : "s"}</summary>${table(remaining)}</details>`
+    : table(rows);
   return `<p class="sub">${r.meta.target_kind === "asn" ? "Preceding ASNs in retained BGP observations." : "Preceding ASNs in retained BGP observations or inferred hop mappings."} Adjacency does not confirm a provider relationship. Fractions describe sample records, never traffic share.</p>
-    <p class="sub">BGP denominator: ${calculation.bgp_fraction.denominator == null ? "unknown" : calculation.bgp_fraction.denominator} records with a preceding ASN.${mapped ? ` Inferred-sample denominator: ${calculation.mapped_sample_fraction.denominator} samples with a preceding mapped ASN.` : ""} Percentages are displayed to the nearest whole percent; JSON retains fractions rounded to four decimal places.</p>
-    ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Network</th>${mapped ? "<th>Inferred samples</th>" : ""}<th>BGP records</th><th>Interpretation</th></tr></thead><tbody>
-    ${rows.map(x=>`<tr><td>${asLabel(x.asn,x.name)}</td>${mapped ? `<td class="num">${x.data_paths} · ${x.data_share == null ? "unknown" : pct(x.data_share)}</td>` : ""}<td class="num">${x.cp_routes == null ? "unknown" : x.cp_routes} · ${x.cp_share == null ? "unknown" : pct(x.cp_share)}</td><td>${esc(x.interpretation)}</td></tr>`).join("")}</tbody></table></div>` : "<p>No adjacency is available from the retained evidence. Review source status and warnings.</p>"}`;
+    <p class="sub">Ordered by retained BGP records, then inferred samples, with ASN as the tie-breaker. BGP denominator: ${calculation.bgp_fraction.denominator == null ? "unknown" : calculation.bgp_fraction.denominator} records with a preceding ASN.${mapped ? ` Inferred-sample denominator: ${calculation.mapped_sample_fraction.denominator} samples with a preceding mapped ASN.` : ""} Percentages are displayed to the nearest whole percent; JSON retains fractions rounded to four decimal places.</p>
+    ${rows.length ? display : "<p>No adjacency is available from the retained evidence. Review source status and warnings.</p>"}`;
 }
 function evidenceHTML(r){
   const cp = r.control_plane;
@@ -307,35 +319,22 @@ function evidenceHTML(r){
 }
 function render(r){
   const isAs = r.meta.target_kind === "asn";
-  const savedLayers = {...layers};
-  layers.data = true; layers.cp = true;
-  const staticMap = chartSVG(r, {static: true});
-  Object.assign(layers, savedLayers);
   $("#report").innerHTML = `<div class="brief"><h2>${isAs ? "ASN routing context" : "IP infrastructure context"}</h2>
     <p class="target">${targetContext(r)}</p><p class="lede">${r.summary.map(x=>`<span>${esc(x)}</span>`).join("")}</p>
     ${!isAs ? `<button type="button" class="quiet" id="exploreOrigin">Explore AS${esc(r.meta.origin.asn)}</button><p class="hint">Optional broader context. This does not identify the path the observed IP took.</p>` : ""}</div>
-    <section class="block"><h2>Adjacent network context</h2>${adjacencyTable(r)}</section>
+    <section class="block"><h2>Adjacent network context</h2>${adjacencyTable(r, {collapsible: true})}</section>
     <section class="block"><h2>${isAs ? "Observed BGP paths" : "Routing observations and inferred mappings"}</h2>
       <p class="sub">${isAs ? "This graph shows BGP advertisements only; Atlas hop-to-AS mapping is not performed." : "Dashed edges are BGP advertisements. Solid edges are inferred from reply-address prefix origins in existing Atlas samples."} Neither reconstructs an observed perimeter connection.</p>
-      <p class="sub">A compact routing overview. Up to three networks per hop are emphasized; a small number of lower-frequency networks are faded for context. The evidence section and exports retain their documented path subsets.</p>
-      <div class="chartwrap" id="staticMap">${staticMap}</div>
-      <p><button type="button" class="quiet" id="mapToggle" aria-expanded="false" aria-controls="interactiveMap">Open interactive map</button></p>
-      <div id="interactiveMap" hidden><div class="chartbar">
+      <p class="sub">A compact five-hop routing overview. Select a network to inspect it. Up to three networks per hop are emphasized; a small number of lower-frequency networks are faded for context. The evidence section and exports retain their documented path subsets.</p>
+      <div class="chartbar">
         ${!isAs ? `<label class="key"><input type="checkbox" id="lyData" ${layers.data ? "checked" : ""}>Inferred hop mappings</label>` : ""}
         <label class="key"><input type="checkbox" id="lyCp" ${layers.cp ? "checked" : ""}>Observed BGP paths</label>
-      </div><div class="chartwrap"><div id="chart"></div></div><div class="nodecard" id="nodecard"></div></div></section>
+      </div><div class="chartwrap"><div id="chart"></div></div><div class="nodecard" id="nodecard"></div></section>
     <section class="block"><h2>Evidence and coverage</h2>${evidenceHTML(r)}
       <div class="exports"><button type="button" id="exHtml">Download report</button><button type="button" class="quiet" id="exJson">JSON evidence</button><button type="button" class="quiet" id="exPrint">Print or save PDF</button></div></section>`;
-  show("report");
+  show("report"); drawChart();
   if ($("#lyData")) $("#lyData").addEventListener("change",ev=>{layers.data=ev.target.checked;drawChart();});
   $("#lyCp").addEventListener("change",ev=>{layers.cp=ev.target.checked;drawChart();});
-  $("#mapToggle").addEventListener("click",()=>{
-    const map = $("#interactiveMap"), opening = map.hidden;
-    map.hidden = !opening;
-    $("#mapToggle").textContent = opening ? "Close interactive map" : "Open interactive map";
-    $("#mapToggle").setAttribute("aria-expanded", String(opening));
-    if (opening) drawChart();
-  });
   if ($("#exploreOrigin")) $("#exploreOrigin").addEventListener("click",()=>{
     $("#target").value = `AS${r.meta.origin.asn}`; $("#msm").value = ""; updateTargetMode();
     $("#plan").scrollIntoView(); $("#target").focus();
@@ -371,10 +370,10 @@ function chartSVG(r, opts = {}){
   const live = new Set([o]); activeEdges.forEach(e => { live.add(e.from); live.add(e.to); });
   const allNodes = r.graph.nodes.filter(n => live.has(n.asn));
   const nodeByAsn = new Map(allNodes.map(n => [n.asn, n]));
-  const MAXCOL = 6;
+  const MAX_HOPS = 5;
   const weight = n => (layers.data ? n.data * 4 : 0) + (layers.cp ? n.cp : 0);
   const byDepth = {};
-  allNodes.forEach(n => { if (n.asn !== o) { const c = Math.min(n.depth, MAXCOL); (byDepth[c] ||= []).push(n); } });
+  allNodes.forEach(n => { if (n.asn !== o) { const c = Math.min(n.depth, MAX_HOPS); (byDepth[c] ||= []).push(n); } });
   Object.values(byDepth).forEach(list => list.sort((a,b) => weight(b) - weight(a) || a.asn - b.asn));
 
   // The graph is an overview: preserve the strongest representative paths and
@@ -395,19 +394,22 @@ function chartSVG(r, opts = {}){
   const nodes = allNodes.filter(n => visible.has(n.asn));
   const edges = activeEdges.filter(e => visible.has(e.from) && visible.has(e.to));
   const cols = {};
-  nodes.forEach(n => { const c = Math.min(n.depth, MAXCOL); (cols[c] ||= []).push(n); });
+  nodes.forEach(n => { const c = Math.min(n.depth, MAX_HOPS); (cols[c] ||= []).push(n); });
   Object.values(cols).forEach(c => c.sort((a, b) => (emphasized.has(b.asn) - emphasized.has(a.asn)) || weight(b) - weight(a) || a.asn - b.asn));
-  const ncol = Math.max(...Object.keys(cols).map(Number), 1);
-  const rowH = 58, colW = 168, top = 46, padL = 30, padR = 150;
+  const ncol = MAX_HOPS;
+  const rowH = 58, top = 46, padL = 60, originBand = 190, W = 1100;
   const maxRows = Math.max(...Object.values(cols).map(c => c.length), 1);
-  const W = padL + ncol * colW + padR, H = top + maxRows * rowH + 30;
+  const displayRows = Math.max(maxRows, 5);
+  const originX = W - originBand + 30;
+  const laneW = (originX - padL - 40) / ncol;
+  const H = top + displayRows * rowH + 30;
   const pos = {};
   for (const [c, list] of Object.entries(cols)) {
-    const x = W - padR + 30 - Number(c) * colW;
-    const y0 = top + (maxRows - list.length) * rowH / 2;
+    const x = originX - Number(c) * laneW;
+    const y0 = top + (displayRows - list.length) * rowH / 2;
     list.forEach((n, i) => pos[n.asn] = {x, y: y0 + i * rowH + rowH / 2});
   }
-  pos[o] = {x: W - padR + 18, y: top + maxRows * rowH / 2};
+  pos[o] = {x: originX, y: top + displayRows * rowH / 2};
   const maxDE = Math.max(1, ...edges.map(e => e.data)), maxCE = Math.max(1, ...edges.map(e => e.cp));
   const maxDN = Math.max(1, ...nodes.map(n => n.data)), maxCN = Math.max(1, ...nodes.map(n => n.cp));
   const curve = (a, b, off) => {
@@ -415,12 +417,12 @@ function chartSVG(r, opts = {}){
     return `M${a.x},${a.y + off} C${mx},${a.y + off} ${mx},${b.y + off} ${b.x},${b.y + off}`;
   };
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${r.meta.target_kind === "asn" ? "Observed BGP advertisements ending at" : "Inferred mappings and BGP observations ending at"} AS${o}" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">`;
-  s += `<rect x="${W - padR + 8}" y="0" width="${padR - 8}" height="${H}" fill="var(--perimeter)"/>`;
-  s += `<text x="${W - padR + 18}" y="22" font-size="13" fill="var(--muted)">${r.meta.target_kind === "asn" ? "Selected AS" : "Selected origin"}</text>`;
+  s += `<rect x="${originX - 10}" y="0" width="${W - originX + 10}" height="${H}" fill="var(--perimeter)"/>`;
+  s += `<text x="${originX + 14}" y="22" font-size="13" fill="var(--muted)">${r.meta.target_kind === "asn" ? "Selected AS" : "Selected origin"}</text>`;
   for (let c = 1; c <= ncol; c++) {
-    const x = W - padR + 30 - c * colW;
+    const x = originX - c * laneW;
     s += `<line x1="${x}" y1="34" x2="${x}" y2="${H - 8}" stroke="var(--border-subtle)"/>`;
-    s += `<text x="${x}" y="22" font-size="13" fill="var(--muted)" text-anchor="middle">${c === 1 ? "Adjacent" : c === MAXCOL ? `${c}+ AS hops` : `${c} AS hops`}</text>`;
+    s += `<text x="${x}" y="22" font-size="13" fill="var(--muted)" text-anchor="middle">${c === 1 ? "Adjacent" : c === MAX_HOPS ? `${c}+ AS hops` : `${c} AS hops`}</text>`;
   }
   s += `<g class="edges">`;
   for (const e of edges) {
@@ -439,7 +441,8 @@ function chartSVG(r, opts = {}){
     const stroke = isE ? "var(--observed)" : "var(--text-strong)";
     const fill = "var(--surface)";
     const name = (n.name || "").length > 22 ? n.name.slice(0, 21) + "…" : (n.name || "");
-    s += `<g class="node${faded ? " context" : ""}" data-priority="${faded ? "context" : "emphasized"}" data-asn="${n.asn}" tabindex="${opts.static ? -1 : 0}" role="button" aria-label="AS${n.asn} ${esc(n.name || "")}" opacity="${faded ? ".18" : "1"}">`;
+    const interaction = opts.static ? "" : ` tabindex="0" role="button" aria-label="AS${n.asn} ${esc(n.name || "")}"`;
+    s += `<g class="node${faded ? " context" : ""}" data-priority="${faded ? "context" : "emphasized"}" data-asn="${n.asn}"${interaction} opacity="${faded ? ".18" : "1"}">`;
     if (isO) {
       s += `<rect x="${p.x}" y="${p.y - 32}" width="14" height="64" fill="var(--text-strong)"/>`;
       s += `<text x="${p.x + 24}" y="${p.y - 4}" font-size="16" font-weight="600" fill="var(--text-strong)">AS${n.asn}</text>`;
