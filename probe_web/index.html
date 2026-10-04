@@ -51,7 +51,7 @@ code,.mono,.path{font-family:var(--f-data);font-size:12px;overflow-wrap:anywhere
 button,input,textarea,select{font:inherit;letter-spacing:0}
 input[type=text],input[type=password],input[type=number],textarea,select{width:100%;min-width:0;min-height:40px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:5px;background:var(--surface);color:var(--text)}
 input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
-#target,#msm{font-family:var(--f-data);font-size:12px}
+#target,#msm,#fpSingle{font-family:var(--f-data);font-size:12px}
 textarea{font:12px/1.7 var(--f-data);min-height:82px;max-height:350px;resize:vertical}
 fieldset{border:0;padding:0;margin:18px 0}
 input[type=radio],input[type=checkbox]{accent-color:var(--accent);flex:none}
@@ -62,8 +62,8 @@ input[type=radio],input[type=checkbox]{accent-color:var(--accent);flex:none}
 .actions{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
 button{cursor:pointer;border:1px solid var(--border-strong);border-radius:12px;color:var(--text);background:var(--raised);min-height:44px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:7px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--text) 12%,transparent),0 1px 2px #0003;transition:background .15s ease,transform .12s ease}
 button:hover:not(:disabled){background:var(--hover)}button:active:not(:disabled){transform:scale(.98)}
-#run,#exHtml{background:var(--action);border-color:var(--action-border);color:var(--action-text);font-weight:650}
-#run:hover:not(:disabled),#exHtml:hover:not(:disabled){background:var(--action-hover)}
+#run,#exHtml,#readAdj,#fpJson{background:var(--action);border-color:var(--action-border);color:var(--action-text);font-weight:650}
+#run:hover:not(:disabled),#exHtml:hover:not(:disabled),#readAdj:hover:not(:disabled),#fpJson:hover:not(:disabled){background:var(--action-hover)}
 button.quiet{background:transparent;color:var(--text)}button.quiet:hover:not(:disabled){background:var(--raised)}
 #cancel{color:var(--danger);border-color:var(--border-strong)}button:disabled{opacity:.45;cursor:not-allowed}
 .privacy{margin-top:24px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
@@ -89,13 +89,18 @@ td{background:var(--surface);border-bottom:1px solid var(--border-subtle);paddin
 details{margin-top:12px;border:1px solid var(--border);border-radius:5px}summary{cursor:pointer;padding:12px 14px;color:var(--secondary);font-size:12px;font-weight:500}details>p,details>.hops{padding:0 14px}details>details{margin:0 12px 12px}details>.tablewrap{border:0;border-top:1px solid var(--border);border-radius:0}
 .hops{font:12px/1.7 var(--f-data);margin:8px 0 14px;padding-left:14px;overflow-wrap:anywhere}.hops .gap{color:var(--muted)}ul.notes{padding-left:18px;max-width:80ch;color:var(--secondary);font-size:12px}ul.notes li{margin:8px 0}
 .exports{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.toast{position:fixed;bottom:18px;right:18px;background:var(--raised);border:1px solid var(--border-strong);color:var(--text);padding:10px 16px;border-radius:12px;font-size:12px;opacity:0;transition:opacity .2s}.toast.on{opacity:1}
-[hidden]{display:none!important}
+[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+button.linkish{display:inline;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:var(--accent);font-size:inherit;text-decoration:underline;text-underline-offset:3px}button.linkish:hover:not(:disabled){background:none;color:var(--accent-hover)}
+input[type=file]{width:100%;font-size:12px;color:var(--secondary)}input[type=file]::file-selector-button{font:inherit;margin-right:10px;padding:8px 12px;border:1px solid var(--border-strong);border-radius:10px;background:var(--raised);color:var(--text);cursor:pointer}
+th.sortable{padding:0}th.sortable button{all:unset;box-sizing:border-box;display:block;width:100%;padding:12px 14px;cursor:pointer;color:var(--secondary)}th.sortable button:hover{color:var(--text-strong)}th.sortable button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}th.sortable button::after{content:"";margin-left:6px}th[aria-sort=ascending] button::after{content:"▲"}th[aria-sort=descending] button::after{content:"▼"}
+td.check-cell{width:36px}td.check-cell input{width:16px;height:16px}.rel{display:block;font:11px/1.6 var(--f-data);color:var(--secondary);min-width:150px}#neighbourTable td{padding:12px 10px}#neighbourTable th.sortable button{padding:12px 10px}.pill{display:inline-block;margin-left:6px;font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border-strong);color:var(--secondary);font-family:var(--f-body);font-weight:400}
+.asn-section summary{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}.asn-section summary .asn{font-size:13px}.asn-section .inner{padding:0 14px 14px}.asn-section .inner>.tablewrap{margin-top:10px}.drillbox{margin-top:12px}.counts{color:var(--muted);font-size:11px}
 @media(max-width:900px){.shell{grid-template-columns:260px minmax(0,1fr);gap:22px}.plan{padding-right:18px}.masthead{align-items:flex-start}.masthead .sib{white-space:normal}}
 @media(max-width:720px){.masthead{padding:20px 16px;flex-direction:column;gap:12px}.masthead h1{font-size:24px}.masthead-tools{width:100%;justify-content:space-between}.coqui-background{right:10px;bottom:10px;width:110px;opacity:.035}.shell{grid-template-columns:1fr;padding:20px 16px 36px;gap:26px}.plan{border-right:0;border-bottom:1px solid var(--border);padding:0 0 22px}.actions #run{flex:1}.empty h2{font-size:21px}.chartbar{gap:10px}.exports button{flex:1}td,th{padding:10px 12px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
  :root,:root[data-probe-theme]{color-scheme:light;--bg:#fff;--surface:#fff;--raised:#eee;--text:#17212c;--text-strong:#17212c;--secondary:#53676a;--muted:#53676a;--border:#9a8b72;--border-strong:#766850;--border-subtle:#cbbda5;--accent:#006d77;--accent-hover:#006d77;--warning:#a15c00}
- .plan,.masthead-tools,.coqui-background,.exports,.chartbar input,.blockbox .row,button,.toast{display:none!important}.shell{display:block;max-width:none;padding:0}.masthead{padding:0 0 16px;margin-bottom:20px}main{padding:0}details{display:block}details>*{display:block}.chartwrap{overflow:visible}#chart svg{max-width:100%;height:auto}.tablewrap{overflow:visible}tr:hover td{background:var(--surface)}
+ .plan,.masthead-tools,.coqui-background,.exports,.chartbar input,.blockbox .row,button:not(.sortbtn),.toast,td.check-cell,.no-print{display:none!important}th.sortable button::after{content:""!important}.shell{display:block;max-width:none;padding:0}.masthead{padding:0 0 16px;margin-bottom:20px}main{padding:0}details{display:block}details>*{display:block}.chartwrap{overflow:visible}#chart svg{max-width:100%;height:auto}.tablewrap{overflow:visible}tr:hover td{background:var(--surface)}
 }
 </style>
 </head>
@@ -130,16 +135,40 @@ details{margin-top:12px;border:1px solid var(--border);border-radius:5px}summary
 
 <div class="shell">
 <form id="plan" class="plan" novalidate>
-  <h2>Infrastructure lookup</h2>
+  <h2>Routing lookup</h2>
   <fieldset>
-    <legend>Start with an IP</legend>
+    <legend>What are you looking up?</legend>
     <div class="tier">
-      <label><input type="radio" name="lookup" value="ip" checked>
-        <span><strong>IP address</strong><small>Focused context for an address observed at your perimeter.</small></span></label>
+      <label><input type="radio" name="lookup" value="footprint" checked>
+        <span><strong>Your footprint</strong><small>Enter one IP or prefix, or upload a list. See the networks observed next to your origin ASNs.</small></span></label>
+      <label><input type="radio" name="lookup" value="ip">
+        <span><strong>Public routing context</strong><small>Focused public context for an address observed at your perimeter.</small></span></label>
       <label><input type="radio" name="lookup" value="asn">
         <span><strong>Explore ASN</strong><small>Optional broader routing context. May take several minutes.</small></span></label>
     </div>
   </fieldset>
+  <div id="footprintFields">
+    <div class="field">
+      <label for="fpSingle">One IP or prefix</label>
+      <input id="fpSingle" type="text" autocomplete="off" spellcheck="false" placeholder="203.0.113.10 or 203.0.113.0/24">
+      <p class="hint">Start with one public IP address or CIDR prefix, or leave this empty and choose a file below.</p>
+    </div>
+    <div class="field">
+      <label for="fpFile">Footprint file (optional)</label>
+      <input id="fpFile" type="file" accept=".csv,.txt,text/csv,text/plain">
+      <p class="hint">One IP or prefix per row, as CSV or plain text. Up to 5,000 entries and 1 MB. Choose either a single entry or a file.</p>
+    </div>
+    <div class="field">
+      <label for="fpKeywords">Your organization's holder name (optional)</label>
+      <input id="fpKeywords" type="text" autocomplete="off" spellcheck="false" placeholder="Example Org, EXAMPLE-NET">
+      <p class="hint">Origin ASNs whose RIPE holder name contains one of these are pre-checked as yours. Without it, nothing is pre-checked.</p>
+    </div>
+    <div class="field">
+      <label class="check"><input id="fpLowVis" type="checkbox"> Include low-visibility routes</label>
+      <p class="hint">RIPE normally leaves out routes seen by fewer than 10 RIS peers. Include them to see thinly observed announcements.</p>
+    </div>
+  </div>
+  <div id="singleFields" hidden>
   <div class="field">
     <label for="target" id="target-label">IP address</label>
     <input id="target" type="text" autocomplete="off" spellcheck="false" placeholder="Public IP address" required>
@@ -157,19 +186,22 @@ details{margin-top:12px;border:1px solid var(--border);border-radius:5px}summary
   <div class="field">
     <label class="check"><input id="cp" type="checkbox" checked> Include RIS routing observations</label>
   </div>
+  </div>
 
   <div class="actions">
     <button id="run" type="submit">Analyze IP</button>
     <button id="cancel" type="button" class="quiet" hidden>Cancel</button>
   </div>
+  <p class="hint"><button id="openRun" type="button" class="linkish">Open a saved run</button> to view a JSON export from this tool without new lookups.</p>
+  <input id="openFile" type="file" accept=".json,application/json" hidden>
 
-  <p class="privacy">Lookups read existing public RIPE data only. Your target and measurement IDs are sent to RIPE, which also sees your public IP. No investigated host is contacted by this application.</p>
+  <p class="privacy">Lookups read existing public RIPE data only. Every entry, ASN and measurement ID you look up is sent to RIPE, which also sees your public IP. No host you look up is contacted by this application.</p>
 </form>
 
 <main id="out" aria-live="polite">
   <section id="empty" class="empty">
-    <h2>Start with the IP you observed.</h2>
-    <p>Look up its covering prefix and origin ASN, review routing observations, then explore the ASN for broader context.</p>
+    <h2>Choose a routing lookup.</h2>
+    <p>Start with your footprint, public routing context for one IP, or broader ASN context.</p>
     <dl>
       <dt>Identity context</dt><dd>Prefix, origin ASN and reported holder. These do not identify the person behind a connection.</dd>
       <dt>Routing evidence</dt><dd>Collector-observed BGP advertisements and existing Atlas samples, kept distinct.</dd>
@@ -197,7 +229,7 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const pct = x => `${Math.round((x || 0) * 100)}%`;
 const asLabel = (asn, name) => `<span class="asn">AS${esc(asn)}</span>${name ? `<span class="nm">${esc(name)}</span>` : ""}`;
 
-let jobId = null, timer = null, result = null;
+let jobId = null, timer = null, result = null, resolution = null, footprint = null, onJobDone = null;
 const layers = {data:true, cp:true};
 
 const THEME_IDS = new Set(["soc", "nord", "contrast", "matrix", "mucaro", "notebook", "amber"]);
@@ -216,45 +248,95 @@ $("#theme").addEventListener("change", ev => applyTheme(ev.target.value));
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),1800); }
 function show(id){ for (const s of ["empty","running","error","report"]) $("#"+s).hidden = s !== id; }
 
+const EMPTY = {
+  footprint: ["See the networks observed next to yours.",
+    "Start with one public IP or prefix, or upload your external footprint. Pathfinder maps each entry to its announced prefix and origin ASN, you confirm which ASNs are yours, and it reads the neighbours RIS observes for them.",
+    [["Origin ASNs", "Which ASNs announce the space in your footprint, and how much of it each one holds."],
+     ["Adjacent networks", "Every network observed next to the ASNs you confirm, with RIPE's position, route and path counts."],
+     ["A point-in-time record", "Inputs, resolution, your confirmation and the adjacency result, saved as JSON and CSV."]]],
+  ip: ["Public routing context for one IP.",
+    "Look up its covering prefix and origin ASN, review public routing observations, then explore the ASN for broader context.",
+    [["Identity context", "Prefix, origin ASN and reported holder. These do not identify the person behind a connection."],
+     ["Routing evidence", "Collector-observed BGP advertisements and existing Atlas samples, kept distinct."],
+     ["Explore ASN", "Optional wider context with explicit sample and coverage limits."]]],
+};
+EMPTY.asn = ["Explore the ASN’s broader routing context.",
+  "Review observed prefixes, BGP advertisements and existing Atlas samples. This is incomplete routing context, not a reconstruction of an observed connection.", EMPTY.ip[2]];
+function setEmpty(mode){
+  const [h, p, items] = EMPTY[mode];
+  $("#empty h2").textContent = h; $("#empty > p").textContent = p;
+  $("#empty dl").innerHTML = items.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join("");
+}
+function lookupMode(){ return $('input[name=lookup]:checked').value; }
 function isAsTarget(){ return /^(?:AS)?[0-9]{1,10}$/i.test($("#target").value.trim()); }
 function updateTargetMode(){
+  const footprintMode = lookupMode() === "footprint";
+  $("#footprintFields").hidden = !footprintMode;
+  $("#singleFields").hidden = footprintMode;
+  if (footprintMode) { $("#run").textContent = "Resolve footprint"; setEmpty("footprint"); return; }
   const value = $("#target").value.trim();
-  const asn = isAsTarget() || (!value && $('input[name=lookup]:checked').value === "asn");
+  const asn = isAsTarget() || (!value && lookupMode() === "asn");
   $(`input[name=lookup][value=${asn ? "asn" : "ip"}]`).checked = true;
-  $("#target-label").textContent = asn ? "ASN" : "IP address";
+  $("#target-label").textContent = asn ? "ASN" : "Public IP address";
   $("#target").placeholder = asn ? "AS3333 or 3333" : "Public IP address";
-  $("#target-hint").textContent = asn ? "Optional broader context. Enter AS3333 or 3333. The first lookup may take several minutes." : "Start with the externally observed IP. Public data only; no probes are scheduled. RIPE requests are paced, so a run can take several minutes.";
+  $("#target-hint").textContent = asn ? "Optional broader context. Enter AS3333 or 3333. The first lookup may take several minutes." : "Review public routing context for an externally observed IP. Public data only; no probes are scheduled. RIPE requests are paced, so a run can take several minutes.";
   $("#asn-note").hidden = !asn;
-  $("#run").textContent = asn ? "Explore ASN" : "Analyze IP";
-  $("#empty h2").textContent = asn ? "Explore the ASN’s broader routing context." : "Start with the IP you observed.";
-  $("#empty > p").textContent = asn ? "Review observed prefixes, BGP advertisements and existing Atlas samples. This is incomplete routing context, not a reconstruction of an observed connection." : "Look up its covering prefix and origin ASN, review routing observations, then explore the ASN for broader context.";
+  $("#run").textContent = asn ? "Explore ASN" : "Analyze public routing context";
+  setEmpty(asn ? "asn" : "ip");
   $("#publicFields .hint").textContent = asn ? "Leave empty to search existing public traceroutes classified under this ASN. Samples cover particular addresses, not the whole AS." : "Leave empty to search existing traceroutes to this address, then other addresses in its origin ASN. Supplied IDs are checked against the target. Sample destinations are shown in the report.";
 }
 document.querySelectorAll('input[name=lookup]').forEach(radio => radio.addEventListener("change", () => {
-  if ($( "#target").value.trim() && (radio.value === "asn") !== isAsTarget()) $("#target").value = "";
+  if (radio.value !== "footprint" && $("#target").value.trim() && (radio.value === "asn") !== isAsTarget()) $("#target").value = "";
   updateTargetMode();
 }));
 $("#target").addEventListener("input", updateTargetMode);
 updateTargetMode();
 
-$("#plan").addEventListener("submit", async ev => {
-  ev.preventDefault();
-  const tier = "public";
-  const body = {
-    target: $("#target").value.trim(), tier,
-    measurement_ids: $("#msm").value,
-    control_plane: $("#cp").checked,
-  };
+async function postJob(url, body, done){
   let res;
   try {
-    res = await fetch("/api/analyze", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+    res = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
   } catch { return fail("The local server isn't responding. Check that probe_server.py is still running."); }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return fail(data.error || `Request failed (${res.status}).`);
-  jobId = data.job_id;
+  jobId = data.job_id; onJobDone = done;
   $("#log").textContent = ""; $("#now").textContent = "Starting";
   show("running"); $("#run").disabled = true; $("#cancel").hidden = false;
   timer = setInterval(poll, 1500);
+}
+
+async function submitFootprint(){
+  const single = $("#fpSingle").value.trim();
+  const file = $("#fpFile").files[0];
+  if (single && file) return fail("Enter one IP or prefix, or choose a file, not both.");
+  if (!single && !file) return fail("Enter one IP or prefix, or choose a CSV or text file.");
+  if (file && file.size > 1024 * 1024) return fail("The file is larger than 1 MB. Split it into smaller files.");
+  let text;
+  if (single) text = single;
+  else try { text = await file.text(); } catch { return fail("The file couldn't be read."); }
+  postJob("/api/footprint/resolve", {csv: text, org_keywords: $("#fpKeywords").value,
+    include_low_visibility: $("#fpLowVis").checked}, res => renderConfirm(res));
+}
+
+$("#plan").addEventListener("submit", ev => {
+  ev.preventDefault();
+  if (lookupMode() === "footprint") return submitFootprint();
+  postJob("/api/analyze", {target: $("#target").value.trim(), tier: "public",
+    measurement_ids: $("#msm").value, control_plane: $("#cp").checked}, r => { result = r; render(r); });
+});
+
+$("#openRun").addEventListener("click", () => $("#openFile").click());
+$("#openFile").addEventListener("change", async ev => {
+  const f = ev.target.files[0]; ev.target.value = "";
+  if (!f) return;
+  let r;
+  try { r = JSON.parse(await f.text()); } catch { return fail("That file isn't valid JSON."); }
+  try {
+    if (r && r.kind === "footprint_run" && r.adjacency) renderFootprint(r);
+    else if (r && r.kind === "footprint_resolution" && r.origins) renderConfirm(r, {fromFile: true});
+    else if (r && r.meta && ["ip", "asn"].includes(r.meta.target_kind) && r.graph) { result = r; render(r); }
+    else fail("That file isn't a Pathfinder export.");
+  } catch (e) { fail(`The file couldn't be displayed: ${e.message}`); }
 });
 
 $("#cancel").addEventListener("click", async () => {
@@ -272,9 +354,9 @@ async function poll(){
   catch { return; }
   $("#now").textContent = s.progress || "";
   const log = $("#log"); log.textContent = (s.log || []).join("\n"); log.scrollTop = log.scrollHeight;
-  if (s.status === "done") { stopPolling(); result = s.result; render(result); }
+  if (s.status === "done") { stopPolling(); onJobDone(s.result); }
   else if (s.status === "failed") fail(s.error || "Unknown error.");
-  else if (s.status === "cancelled") { stopPolling(); fail("Analysis cancelled. No new measurements were scheduled."); }
+  else if (s.status === "cancelled") { stopPolling(); fail("Cancelled. No measurements were scheduled."); }
 }
 
 function targetLabel(m){ return m.target_resource || m.target_ip || m.target_input; }
@@ -361,6 +443,300 @@ function traceHTML(t){
     ${asSample ? "existing traceroute to " + esc(t.dst) : t.as_path.length ? "inferred mapping: " + t.as_path.map(a => "AS" + a).join(" → ") : "no mapped hops"}${asSample ? " · hop-to-AS mapping not performed" : t.reached_origin_as ? "" : "  · no hop mapped to the selected origin"}</summary>
     <p class="nm">Measurement ${esc(t.msm_id)} · ${esc(when)} · to ${esc(t.dst)}${t.as_loop ? " · AS loop seen" : ""}</p>
     <ol class="hops" style="list-style:none">${hops}</ol></details>`;
+}
+
+/* ---------- Footprint: upload, confirm, adjacency ---------- */
+const nf = n => (typeof n === "number" ? n.toLocaleString("en-US") : "unknown");
+const plural = (n, one, many) => `${nf(n)} ${n === 1 ? one : (many || one + "s")}`;
+const STATUS_TEXT = {announced: "announced", partially_announced: "not announced as a whole; contains announcements",
+  not_announced: "no covering announcement seen", lookup_failed: "lookup failed", not_resolved: "not resolved (lookup limit)"};
+const POSITION_TEXT = {left: "left", right: "right", uncertain: "uncertain"};
+const MAX_TABLE_ROWS = 1000;
+let fpSort = {key: null, dir: -1};
+
+// CSV cells are quoted, and cells that a spreadsheet would run as a formula are prefixed with an apostrophe.
+function csvCell(v){
+  let s = v == null ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+function toCSV(header, rows){ return [header, ...rows].map(r => r.map(csvCell).join(",")).join("\r\n") + "\r\n"; }
+
+function resolutionCSV(res){
+  return toCSV(["line", "input", "kind", "status", "covering_prefix", "origin_asns", "origin_holders",
+                "more_specific_announcements", "method", "filtered_routes", "error"],
+    res.resolution.map(r => [r.line, r.input, r.kind, r.status, r.covering_prefix || "",
+      r.origins.map(o => o.asn).join(" "), r.origins.map(o => o.holder || "").join(" | "),
+      r.more_specifics.map(p => `${p.prefix}=${p.origins.map(o => "AS" + o.asn).join("+") || "none"}`).join(" "),
+      r.method || "", r.filtered_routes, r.error || ""]));
+}
+function adjacencyCSV(rec){
+  const holders = new Map(rec.origins.map(o => [o.asn, o.holder]));
+  const rows = [];
+  for (const p of rec.adjacency.per_asn) for (const n of p.neighbours) {
+    const agg = rec.adjacency.neighbours.find(x => x.asn === n.asn) || {};
+    rows.push([p.asn, holders.get(p.asn) || "", n.asn, agg.name || "", agg.is_confirmed_asn ? "yes" : "no",
+               n.type, n.power, n.v4_peers, n.v6_peers, p.source.query_starttime || "", p.source.url]);
+  }
+  return toCSV(["your_asn", "your_asn_holder", "neighbour_asn", "neighbour_holder", "neighbour_is_confirmed_asn",
+                "position", "power", "v4_peers", "v6_peers", "query_starttime", "source_url"], rows);
+}
+
+function stamp(obj){ return (obj.meta.generated_utc || "").replace(/[:]/g, "").replace("T", "-").replace("Z", ""); }
+
+function inputsLine(inp){
+  return `${plural(inp.rows_read, "row")} read · ${nf(inp.accepted)} accepted · ${plural(inp.duplicates, "duplicate")} removed · ${nf(inp.rejected_total)} rejected${inp.header ? ` · header “${esc(inp.header)}” skipped` : ""}`;
+}
+function rejectedHTML(inp){
+  if (!inp.rejected_total) return "";
+  return `<details><summary>Rejected rows (${nf(inp.rejected_total)}${inp.rejected_truncated ? `; first ${inp.rejected.length} listed` : ""})</summary>
+    <div class="tablewrap"><table><thead><tr><th>Line</th><th>Value</th><th>Reason</th></tr></thead><tbody>
+    ${inp.rejected.map(r => `<tr><td class="num">${esc(r.line)}</td><td class="mono">${esc(r.value)}</td><td>${esc(r.reason)}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
+function unmappedHTML(res){
+  const rows = res.resolution.filter(r => !r.origins.length && !r.more_specifics.some(p => p.origins.length));
+  if (!rows.length) return "";
+  return `<details><summary>Entries with no origin ASN (${nf(rows.length)})</summary>
+    <div class="tablewrap"><table><thead><tr><th>Line</th><th>Entry</th><th>Result</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td class="num">${esc(r.line)}</td><td class="mono">${esc(r.input)}</td><td>${esc(STATUS_TEXT[r.status] || r.status)}${r.error ? ` · ${esc(r.error)}` : ""}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
+function statusLine(res){
+  const c = res.status_counts || {};
+  return Object.keys(STATUS_TEXT).filter(k => c[k]).map(k => `${nf(c[k])} ${STATUS_TEXT[k]}`).join(" · ");
+}
+function sourcesHTML(rec){
+  const po = rec.sources.prefix_overview, an = rec.sources.asn_neighbours, st = rec.settings;
+  return `<p class="sub">Resolution: ${esc(po.name)} · ${plural(po.lookups, "lookup")} · ${nf(po.reused)} answered from an already-read covering prefix · data time ${esc(po.query_times.join(", ") || "not supplied")}.</p>
+    <p class="sub">Visibility: ${st.include_low_visibility ? "low-visibility routes included (min_peers_seeing=1)" : `RIPE default threshold${st.visibility_threshold ? ` (${st.visibility_threshold} RIS peers)` : ""}`} · ${plural(po.filtered_routes, "route")} left out by that threshold.${st.org_keywords.length ? ` Holder-name keywords: ${st.org_keywords.map(k => `“${esc(k)}”`).join(", ")}.` : ""}</p>
+    ${an ? `<p class="sub">Adjacency: ${esc(an.name)} · data time ${esc(an.query_times.join(", ") || "not supplied")}.</p>` : ""}
+    ${po.messages.length ? `<details><summary>RIPE response messages (${po.messages.length})</summary><ul class="notes">${po.messages.map(m => `<li>${esc(m.message)} <span class="counts">× ${nf(m.count)}</span></li>`).join("")}</ul></details>` : ""}`;
+}
+
+function confirmHTML(res, opts = {}){
+  const total = res.inputs.accepted;
+  const rows = res.origins.map(o => `<tr>
+      <td class="check-cell"><input type="checkbox" class="confirm-asn" value="${esc(o.asn)}" ${o.default_selected ? "checked" : ""} aria-label="Treat AS${esc(o.asn)} as yours"></td>
+      <td>${asLabel(o.asn, o.holder)}${o.matched_keyword ? `<span class="nm">Pre-checked: holder contains “${esc(o.matched_keyword)}”</span>` : ""}</td>
+      <td class="num">${nf(o.entries)} · ${pct(o.share)}</td>
+      <td class="mono">${o.prefixes.slice(0, 4).map(esc).join("<br>")}${o.prefixes.length > 4 ? `<br><span class="nm">+${nf(o.prefixes.length - 4)} more</span>` : ""}</td>
+      <td>${o.multi_origin_entries ? `${plural(o.multi_origin_entries, "entry", "entries")} also announced by another origin` : ""}</td></tr>`).join("");
+  return `<div class="brief"><h2>Confirm which origin ASNs are yours</h2>
+    <p class="target">${inputsLine(res.inputs)}. Resolved ${esc(res.meta.generated_utc)}.</p>
+    <p class="lede"><span>${plural(total, "entry", "entries")} map to ${plural(res.origins.length, "origin ASN")}.</span><span class="counts">${statusLine(res)}</span></p>
+    ${opts.fromFile ? `<p class="hint">Opened from a file. Reading adjacency needs this resolution to still be held by the server (one hour after it finished); otherwise upload the CSV again.</p>` : ""}</div>
+    <section class="block"><h2>Origin ASNs in your footprint</h2>
+      <p class="sub">Checked ASNs are treated as yours: Pathfinder reads their observed neighbours. Unchecked ASNs stay in the record and are not queried. For entries in cloud, CDN or hosting space, the origin and its neighbours belong to the provider. Ordered by footprint entries, then ASN.</p>
+      ${res.origins.length ? `<div class="tablewrap"><table><thead><tr><th><span class="sr-only">Yours</span></th><th>Origin ASN</th><th>Footprint entries</th><th>Announced prefixes</th><th>Notes</th></tr></thead><tbody>${rows}</tbody></table></div>` : "<p>No entry resolved to an origin ASN.</p>"}
+      <div class="actions"><button type="button" id="readAdj">Read adjacency</button><button type="button" class="quiet" id="selAll">Select all</button><button type="button" class="quiet" id="selNone">Clear</button></div>
+      <p class="hint">One RIPE request per checked ASN, plus holder-name lookups for up to 150 neighbours, paced at least two seconds apart.</p>
+      ${unmappedHTML(res)}${rejectedHTML(res.inputs)}</section>
+    <section class="block"><h2>Evidence and coverage</h2>${sourcesHTML(res)}
+      ${res.warnings.length ? `<h3>Warnings and limits</h3><ul class="notes">${res.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+      <div class="exports"><button type="button" class="quiet" id="resJson">Resolution JSON</button><button type="button" class="quiet" id="resCsv">Resolution CSV</button></div></section>`;
+}
+
+function sortValue(n, key){
+  if (key === "name") return (n.name || "").toLowerCase();
+  if (key === "positions") return n.positions.join(",");
+  return n[key];
+}
+function sortedNeighbours(rows, sort){
+  if (!sort.key) return rows;
+  return [...rows].sort((a, b) => {
+    const va = sortValue(a, sort.key), vb = sortValue(b, sort.key);
+    return ((va < vb ? -1 : va > vb ? 1 : 0) * sort.dir) || a.asn - b.asn;
+  });
+}
+const NEIGHBOUR_COLUMNS = [["asn", "Neighbour"], ["name", "Holder"], ["your_asn_count", "Your ASNs"], ["positions", "Position"],
+  ["max_v4_peers", "IPv4 routes"], ["max_v6_peers", "IPv6 routes"], ["max_power", "AS paths"]];
+function neighboursTableHTML(rec, sort = fpSort){
+  const rows = sortedNeighbours(rec.adjacency.neighbours, sort);
+  const shown = rows.slice(0, MAX_TABLE_ROWS);
+  const head = NEIGHBOUR_COLUMNS.map(([key, label]) => {
+    const state = sort.key === key ? (sort.dir > 0 ? "ascending" : "descending") : "none";
+    return `<th class="sortable" aria-sort="${state}"><button type="button" class="sortbtn" data-sort="${key}">${label}</button></th>`;
+  }).join("");
+  const body = shown.map(n => `<tr>
+      <td>${asLabel(n.asn, null)}${n.is_confirmed_asn ? `<span class="nm">Your confirmed ASN</span>` : ""}</td>
+      <td>${esc(n.name || "")}</td>
+      <td>${n.relations.map(r => `<span class="rel">AS${esc(r.your_asn)} · ${esc(POSITION_TEXT[r.type])} · ${nf(r.v4_peers)} v4 / ${nf(r.v6_peers)} v6 routes · ${nf(r.power)} paths</span>`).join("")}</td>
+      <td>${n.positions.map(p => esc(POSITION_TEXT[p])).join(", ")}</td>
+      <td class="num">${nf(n.max_v4_peers)}</td><td class="num">${nf(n.max_v6_peers)}</td><td class="num">${nf(n.max_power)}</td></tr>`).join("");
+  return `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+    ${rows.length > shown.length ? `<p class="hint">Showing ${nf(shown.length)} of ${nf(rows.length)} neighbours. The JSON and CSV exports include all of them.</p>` : ""}`;
+}
+
+function footprintGraphSVG(rec){
+  const mine = rec.adjacency.per_asn.filter(p => p.source.status === "available").map(p => p.asn);
+  const holders = new Map(rec.origins.map(o => [o.asn, o.holder]));
+  const external = rec.adjacency.neighbours.filter(n => !n.is_confirmed_asn);
+  const internal = rec.adjacency.neighbours.filter(n => n.is_confirmed_asn);
+  const left = external.filter(n => n.relations.some(r => r.type !== "right"));
+  const right = external.filter(n => n.relations.every(r => r.type === "right"));
+  const W = 1100, top = 64, rowH = 58, cx = {left: 230, mid: 550, right: 870}, half = 92;
+  const rowsN = Math.max(left.length, right.length, mine.length, 3);
+  const H = top + rowsN * rowH + 24;
+  const place = (list, x) => new Map(list.map((n, i) => [n.asn ?? n, {x, y: top + (rowsN - list.length) * rowH / 2 + i * rowH + rowH / 2}]));
+  const pos = new Map([...place(left, cx.left), ...place(right, cx.right), ...place(mine, cx.mid)]);
+  const routes = r => r.v4_peers + r.v6_peers;
+  const maxR = Math.max(1, ...rec.adjacency.neighbours.flatMap(n => n.relations.map(routes)));
+  const width = r => (1 + 5 * Math.sqrt(routes(r) / maxR)).toFixed(2);
+  const short = (t, n = 26) => (t || "").length > n ? t.slice(0, n - 1) + "…" : (t || "");
+  const title = (n, r) => `<title>AS${n.asn} ${esc(POSITION_TEXT[r.type])} of AS${r.your_asn}: ${nf(r.v4_peers)} IPv4 / ${nf(r.v6_peers)} IPv6 routes, ${nf(r.power)} AS paths</title>`;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Observed BGP neighbours of ${mine.length} confirmed ASNs" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">`;
+  s += `<rect x="${cx.mid - half - 18}" y="0" width="${2 * half + 36}" height="${H}" fill="var(--perimeter)"/>`;
+  [["Left of your ASNs", cx.left], ["Your confirmed ASNs", cx.mid], ["Right of your ASNs", cx.right]]
+    .forEach(([t, x]) => { s += `<text x="${x}" y="26" font-size="13" fill="var(--muted)" text-anchor="middle">${t}</text>`; });
+  for (const n of external) for (const r of n.relations) {
+    const a = pos.get(n.asn), b = pos.get(r.your_asn); if (!a || !b) continue;
+    const bx = a.x < cx.mid ? b.x - half : b.x + half, mx = (a.x + bx) / 2;
+    s += `<path d="M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${bx},${b.y}" fill="none" stroke="var(--observed)" stroke-opacity=".7" stroke-width="${width(r)}"${r.type === "uncertain" ? ` stroke-dasharray="4 4"` : ""}>${title(n, r)}</path>`;
+  }
+  for (const n of internal) for (const r of n.relations) {
+    const a = pos.get(n.asn), b = pos.get(r.your_asn); if (!a || !b) continue;
+    const ex = cx.mid + half, bend = ex + 26 + Math.abs(a.y - b.y) / 4;
+    s += `<path d="M${ex},${a.y} C${bend},${a.y} ${bend},${b.y} ${ex},${b.y}" fill="none" stroke="var(--accent)" stroke-opacity=".85" stroke-width="${width(r)}"${r.type === "uncertain" ? ` stroke-dasharray="4 4"` : ""}>${title(n, r)}</path>`;
+  }
+  for (const asn of mine) {
+    const p = pos.get(asn);
+    s += `<rect x="${p.x - half}" y="${p.y - 20}" width="${2 * half}" height="40" rx="5" fill="var(--surface)" stroke="var(--text-strong)" stroke-width="1.5"/>`;
+    s += `<text x="${p.x}" y="${p.y - 3}" font-size="13" font-weight="600" text-anchor="middle" fill="var(--text-strong)">AS${asn}</text>`;
+    s += `<text x="${p.x}" y="${p.y + 12}" font-size="10.5" text-anchor="middle" fill="var(--muted)">${esc(short(holders.get(asn), 25))}</text>`;
+  }
+  for (const [list, side] of [[left, "left"], [right, "right"]]) for (const n of list) {
+    const p = pos.get(n.asn), rad = 5 + 3 * (n.your_asn_count - 1);
+    const tx = side === "left" ? p.x - rad - 8 : p.x + rad + 8, anchor = side === "left" ? "end" : "start";
+    s += `<circle cx="${p.x}" cy="${p.y}" r="${rad}" fill="var(--surface)" stroke="var(--text-strong)" stroke-width="${n.your_asn_count > 1 ? 2.5 : 1.5}"/>`;
+    s += `<text x="${tx}" y="${p.y - 2}" font-size="12" font-weight="600" text-anchor="${anchor}" fill="var(--text-strong)">AS${n.asn}</text>`;
+    s += `<text x="${tx}" y="${p.y + 12}" font-size="11" text-anchor="${anchor}" fill="var(--muted)">${esc(short(n.name))}</text>`;
+  }
+  return s + `</svg>`;
+}
+
+function perAsnHTML(rec, interactive){
+  const origins = new Map(rec.origins.map(o => [o.asn, o]));
+  return rec.adjacency.per_asn.map(p => {
+    const o = origins.get(p.asn) || {}, src = p.source;
+    const counts = ["left", "right", "uncertain"].map(t => `${p.neighbours.filter(n => n.type === t).length} ${t}`).join(" / ");
+    const names = new Map(rec.adjacency.neighbours.map(n => [n.asn, n.name]));
+    const rows = [...p.neighbours].sort((a, b) => (b.v4_peers + b.v6_peers) - (a.v4_peers + a.v6_peers) || a.asn - b.asn);
+    return `<details class="asn-section"><summary>${asLabel(p.asn, null)}<span>${esc(o.holder || "")}</span><span class="counts">${src.status === "available" ? `${plural(p.neighbours.length, "neighbour")} (${counts})` : "neighbour data unavailable"} · ${plural(o.entries || 0, "footprint entry", "footprint entries")}</span></summary>
+      <div class="inner">
+        <p class="sub">Source: ${esc(src.name)} · status ${esc(src.status)} · data time ${esc(src.query_starttime || "not supplied")} · retrieved ${esc(src.retrieved_at || "not retrieved")}${src.version ? ` · data call version ${esc(src.version)}` : ""}${src.error ? ` · ${esc(src.error)}` : ""}.</p>
+        ${src.messages && src.messages.length ? `<p class="sub">RIPE: ${src.messages.map(esc).join(" · ")}</p>` : ""}
+        ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Neighbour</th><th>Position</th><th>IPv4 routes</th><th>IPv6 routes</th><th>AS paths</th></tr></thead><tbody>
+          ${rows.map(n => `<tr><td>${asLabel(n.asn, names.get(n.asn))}</td><td>${esc(POSITION_TEXT[n.type])}</td><td class="num">${nf(n.v4_peers)}</td><td class="num">${nf(n.v6_peers)}</td><td class="num">${nf(n.power)}</td></tr>`).join("")}</tbody></table></div>
+          <p class="hint">Ordered by IPv4 plus IPv6 routes, then ASN.</p>` : ""}
+        <details><summary>Footprint entries mapped to AS${esc(p.asn)} (${nf(o.entries || 0)}) and announced prefixes (${nf((o.prefixes || []).length)})</summary>
+          <p class="mono">${(o.inputs || []).map(esc).join(", ")}${o.inputs_truncated ? ` … first ${o.inputs.length} listed` : ""}</p>
+          <p class="mono">${(o.prefixes || []).map(esc).join(", ")}</p></details>
+        ${interactive ? `<div class="no-print"><p><button type="button" class="quiet drill" data-asn="${esc(p.asn)}">Load observed BGP paths for AS${esc(p.asn)}</button></p>
+          <p class="hint">Runs the Explore ASN lookup for this network and draws its path overview here. It is a separate run and isn't added to this footprint record.</p></div>
+          <div class="drillbox" id="drill-${esc(p.asn)}"></div>` : ""}
+      </div></details>`;
+  }).join("");
+}
+
+function footprintReportHTML(rec, opts = {}){
+  const interactive = !!opts.interactive;
+  const confirmed = rec.origins.filter(o => o.confirmed), others = rec.origins.filter(o => !o.confirmed);
+  const neighbours = rec.adjacency.neighbours;
+  const graphable = rec.confirmed_asns.length <= 5 && neighbours.length <= 40 && neighbours.length > 0;
+  const defs = rec.adjacency.field_definitions;
+  return `<div class="brief"><h2>Footprint adjacency</h2>
+      <p class="target">${inputsLine(rec.inputs)}. Resolved ${esc(rec.meta.resolution_generated_utc)}; adjacency read ${esc(rec.meta.generated_utc)}.</p>
+      <p class="lede">${rec.summary.map(x => `<span>${esc(x)}</span>`).join("")}</p></div>
+    <section class="block"><h2>Your confirmed ASNs</h2>
+      <div class="tablewrap"><table><thead><tr><th>ASN</th><th>Footprint entries</th><th>Observed neighbours</th><th>Data time</th></tr></thead><tbody>
+      ${rec.adjacency.per_asn.map(p => { const o = confirmed.find(c => c.asn === p.asn) || {}; return `<tr><td>${asLabel(p.asn, p.holder)}</td><td class="num">${nf(o.entries)} · ${pct(o.share)}</td><td class="num">${p.source.status === "available" ? nf(p.neighbours.length) : "unknown"}</td><td class="mono">${esc(p.source.query_starttime || "not supplied")}</td></tr>`; }).join("")}
+      </tbody></table></div></section>
+    <section class="block"><h2>Networks adjacent to your footprint</h2>
+      <p class="sub">Every network RIS observes next to a confirmed ASN, one row per network. ${interactive ? "Select a column heading to sort. " : ""}Default order: number of your ASNs, then IPv4 plus IPv6 routes, then ASN.</p>
+      <p class="sub">Position: ${esc(defs.position)}</p>
+      <p class="sub">Route and path counts are RIPE's v4_peers, v6_peers and power fields. ${esc(defs.v4_peers.split(". ").slice(1).join(". "))} They don't measure traffic.</p>
+      <div id="neighbourTable">${neighbours.length ? neighboursTableHTML(rec, interactive ? fpSort : {key: null, dir: -1}) : "<p>No neighbours were observed for the confirmed ASNs. Review source status below.</p>"}</div></section>
+    <section class="block"><h2>Combined view</h2>
+      ${graphable ? `<p class="sub">All confirmed ASNs and their observed neighbours. Line width follows IPv4 plus IPv6 routes; dashed lines are uncertain positions; arcs on the right join two of your own ASNs. A thicker circle is adjacent to more than one of your ASNs.</p><div class="chartwrap">${footprintGraphSVG(rec)}</div>`
+        : `<p class="sub">The combined view is drawn for up to 5 confirmed ASNs and 40 neighbours. This run has ${plural(rec.confirmed_asns.length, "confirmed ASN")} and ${plural(neighbours.length, "neighbour")}; use the per-ASN sections below.</p>`}</section>
+    <section class="block"><h2>Per-ASN detail</h2>${perAsnHTML(rec, interactive)}</section>
+    ${others.length ? `<section class="block"><h2>Origin ASNs not treated as yours</h2>
+      <p class="sub">In your footprint but not confirmed, so their neighbours were not read. Listed for completeness.</p>
+      <div class="tablewrap"><table><thead><tr><th>Origin ASN</th><th>Footprint entries</th><th>Announced prefixes</th></tr></thead><tbody>
+      ${others.map(o => `<tr><td>${asLabel(o.asn, o.holder)}</td><td class="num">${nf(o.entries)} · ${pct(o.share)}</td><td class="mono">${o.prefixes.slice(0, 4).map(esc).join("<br>")}${o.prefixes.length > 4 ? `<br><span class="nm">+${nf(o.prefixes.length - 4)} more</span>` : ""}</td></tr>`).join("")}
+      </tbody></table></div></section>` : ""}
+    <section class="block"><h2>Evidence and coverage</h2>
+      <p class="sub">${statusLine(rec)}. RIPE requests: ${nf(rec.requests.resolution)} for resolution, ${nf(rec.requests.adjacency)} for adjacency.</p>
+      ${sourcesHTML(rec)}${unmappedHTML(rec)}${rejectedHTML(rec.inputs)}
+      ${rec.warnings.length ? `<h3>Warnings and limits</h3><ul class="notes">${rec.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+      <h3>How to read this</h3><ul class="notes">${rec.methodology.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      ${interactive ? `<div class="exports"><button type="button" id="fpJson">Download JSON record</button><button type="button" class="quiet" id="fpAdjCsv">Adjacency CSV</button><button type="button" class="quiet" id="fpResCsv">Resolution CSV</button><button type="button" class="quiet" id="fpPrint">Print or save PDF</button></div>` : ""}</section>`;
+}
+
+function renderConfirm(res, opts = {}){
+  resolution = res;
+  $("#report").innerHTML = confirmHTML(res, opts);
+  show("report");
+  const boxes = () => [...document.querySelectorAll(".confirm-asn")];
+  const sync = () => {
+    const n = boxes().filter(b => b.checked).length;
+    $("#readAdj").disabled = !n;
+    $("#readAdj").textContent = n ? `Read adjacency for ${plural(n, "ASN")}` : "Select at least one ASN";
+  };
+  boxes().forEach(b => b.addEventListener("change", sync)); sync();
+  $("#selAll").addEventListener("click", () => { boxes().forEach(b => b.checked = true); sync(); });
+  $("#selNone").addEventListener("click", () => { boxes().forEach(b => b.checked = false); sync(); });
+  $("#readAdj").addEventListener("click", () => postJob("/api/footprint/adjacency",
+    {resolution_job: res.meta.job_id, asns: boxes().filter(b => b.checked).map(b => Number(b.value))},
+    rec => renderFootprint(rec)));
+  $("#resJson").addEventListener("click", () => download(`pathfinder-resolution-${stamp(res)}.json`, JSON.stringify(res, null, 2), "application/json"));
+  $("#resCsv").addEventListener("click", () => download(`pathfinder-resolution-${stamp(res)}.csv`, resolutionCSV(res), "text/csv"));
+}
+
+function wireSort(rec){
+  document.querySelectorAll("#neighbourTable .sortbtn").forEach(btn => btn.addEventListener("click", () => {
+    const key = btn.dataset.sort;
+    fpSort = fpSort.key === key ? {key, dir: -fpSort.dir} : {key, dir: (key === "name" || key === "positions" || key === "asn") ? 1 : -1};
+    $("#neighbourTable").innerHTML = neighboursTableHTML(rec);
+    wireSort(rec);
+    const again = document.querySelector(`#neighbourTable .sortbtn[data-sort="${key}"]`); if (again) again.focus();
+  }));
+}
+
+function renderFootprint(rec){
+  footprint = rec; fpSort = {key: null, dir: -1};
+  $("#report").innerHTML = footprintReportHTML(rec, {interactive: true});
+  show("report");
+  wireSort(rec);
+  document.querySelectorAll(".drill").forEach(btn => btn.addEventListener("click", () => drillDown(Number(btn.dataset.asn), btn)));
+  $("#fpJson").addEventListener("click", () => download(`pathfinder-footprint-${stamp(rec)}.json`, JSON.stringify(rec, null, 2), "application/json"));
+  $("#fpAdjCsv").addEventListener("click", () => download(`pathfinder-adjacency-${stamp(rec)}.csv`, adjacencyCSV(rec), "text/csv"));
+  $("#fpResCsv").addEventListener("click", () => download(`pathfinder-resolution-${stamp(rec)}.csv`, resolutionCSV(rec), "text/csv"));
+  $("#fpPrint").addEventListener("click", () => { document.querySelectorAll("details").forEach(d => d.open = true); window.print(); });
+}
+
+async function drillDown(asn, btn){
+  const box = document.getElementById(`drill-${asn}`);
+  btn.disabled = true; box.innerHTML = `<p class="hint">Starting…</p>`;
+  let res, data;
+  try {
+    res = await fetch("/api/analyze", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({target: `AS${asn}`, tier: "public", measurement_ids: "", control_plane: true})});
+    data = await res.json().catch(() => ({}));
+  } catch { box.innerHTML = `<p class="error">The local server isn't responding.</p>`; btn.disabled = false; return; }
+  if (!res.ok) { box.innerHTML = `<p class="error">${esc(data.error || `Request failed (${res.status}).`)}</p>`; btn.disabled = false; return; }
+  const t = setInterval(async () => {
+    let s;
+    try { s = await (await fetch(`/api/job/${data.job_id}`)).json(); } catch { return; }
+    if (s.status === "running") { box.innerHTML = `<p class="hint">${esc(s.progress || "Working")}</p>`; return; }
+    clearInterval(t); btn.disabled = false;
+    if (s.status !== "done") { box.innerHTML = `<p class="error">${esc(s.error || "The lookup was cancelled.")}</p>`; return; }
+    const r = s.result, saved = {...layers};
+    layers.data = true; layers.cp = true;
+    const svg = chartSVG(r, {static: true});
+    Object.assign(layers, saved);
+    box.innerHTML = `<p class="sub">${r.summary.map(esc).join(" ")}</p><div class="chartwrap">${svg}</div>
+      <p class="hint">BGP data time ${esc((r.control_plane.source || {}).observed_at || "not supplied")}. Use Explore ASN for the interactive map and its own exports.</p>`;
+  }, 1500);
 }
 
 /* ---------- Approach chart ---------- */
