@@ -317,7 +317,7 @@ function render(r){
     <section class="block"><h2>Adjacent network context</h2>${adjacencyTable(r)}</section>
     <section class="block"><h2>${isAs ? "Observed BGP paths" : "Routing observations and inferred mappings"}</h2>
       <p class="sub">${isAs ? "This graph shows BGP advertisements only; Atlas hop-to-AS mapping is not performed." : "Dashed edges are BGP advertisements. Solid edges are inferred from reply-address prefix origins in existing Atlas samples."} Neither reconstructs an observed perimeter connection.</p>
-      <p class="sub">Static summary of all retained mapping layers. Open the interactive map to select networks and adjust visible layers.</p>
+      <p class="sub">A compact routing overview. Up to three networks per hop are emphasized; a small number of lower-frequency networks are faded for context. The evidence section and exports retain their documented path subsets.</p>
       <div class="chartwrap" id="staticMap">${staticMap}</div>
       <p><button type="button" class="quiet" id="mapToggle" aria-expanded="false" aria-controls="interactiveMap">Open interactive map</button></p>
       <div id="interactiveMap" hidden><div class="chartbar">
@@ -367,16 +367,38 @@ function traceHTML(t){
 /* ---------- Approach chart ---------- */
 function chartSVG(r, opts = {}){
   const o = r.meta.origin.asn;
-  const edges = r.graph.edges.filter(e => (layers.data && e.data) || (layers.cp && e.cp));
-  const live = new Set([o]); edges.forEach(e => { live.add(e.from); live.add(e.to); });
-  const nodes = r.graph.nodes.filter(n => live.has(n.asn));
+  const activeEdges = r.graph.edges.filter(e => (layers.data && e.data) || (layers.cp && e.cp));
+  const live = new Set([o]); activeEdges.forEach(e => { live.add(e.from); live.add(e.to); });
+  const allNodes = r.graph.nodes.filter(n => live.has(n.asn));
+  const nodeByAsn = new Map(allNodes.map(n => [n.asn, n]));
   const MAXCOL = 6;
+  const weight = n => (layers.data ? n.data * 4 : 0) + (layers.cp ? n.cp : 0);
+  const byDepth = {};
+  allNodes.forEach(n => { if (n.asn !== o) { const c = Math.min(n.depth, MAXCOL); (byDepth[c] ||= []).push(n); } });
+  Object.values(byDepth).forEach(list => list.sort((a,b) => weight(b) - weight(a) || a.asn - b.asn));
+
+  // The graph is an overview: preserve the strongest representative paths and
+  // a few faded alternatives, while the report retains every captured record.
+  const emphasized = new Set([o]), MAX_EMPHASIZED = 3, MAX_CONTEXT = 2;
+  Object.values(byDepth).forEach(list => list.slice(0, MAX_EMPHASIZED).forEach(n => emphasized.add(n.asn)));
+  const queue = [...emphasized];
+  while (queue.length) {
+    const from = queue.pop();
+    const next = activeEdges.filter(e => e.from === from && nodeByAsn.has(e.to))
+      .sort((a,b) => ((b.data * 4 + b.cp) - (a.data * 4 + a.cp)) || a.to - b.to)[0];
+    if (next && !emphasized.has(next.to)) { emphasized.add(next.to); queue.push(next.to); }
+  }
+  const context = new Set();
+  Object.values(byDepth).forEach(list => list.filter(n => !emphasized.has(n.asn)).slice(0, MAX_CONTEXT)
+    .forEach(n => context.add(n.asn)));
+  const visible = new Set([...emphasized, ...context]);
+  const nodes = allNodes.filter(n => visible.has(n.asn));
+  const edges = activeEdges.filter(e => visible.has(e.from) && visible.has(e.to));
   const cols = {};
   nodes.forEach(n => { const c = Math.min(n.depth, MAXCOL); (cols[c] ||= []).push(n); });
-  const weight = n => (layers.data ? n.data * 4 : 0) + (layers.cp ? n.cp : 0);
-  Object.values(cols).forEach(c => c.sort((a, b) => weight(b) - weight(a) || a.asn - b.asn));
+  Object.values(cols).forEach(c => c.sort((a, b) => (emphasized.has(b.asn) - emphasized.has(a.asn)) || weight(b) - weight(a) || a.asn - b.asn));
   const ncol = Math.max(...Object.keys(cols).map(Number), 1);
-  const rowH = 78, colW = 176, top = 54, padL = 30, padR = 150;
+  const rowH = 58, colW = 168, top = 46, padL = 30, padR = 150;
   const maxRows = Math.max(...Object.values(cols).map(c => c.length), 1);
   const W = padL + ncol * colW + padR, H = top + maxRows * rowH + 30;
   const pos = {};
@@ -403,19 +425,21 @@ function chartSVG(r, opts = {}){
   s += `<g class="edges">`;
   for (const e of edges) {
     const a = pos[e.from], b = pos[e.to]; if (!a || !b) continue;
-    if (layers.cp && e.cp) s += `<path class="edge" data-a="${e.from}" data-b="${e.to}" d="${curve(a, b, 2)}" fill="none" stroke="var(--observed)" stroke-opacity=".55" stroke-dasharray="6 4" stroke-width="${(1 + 4 * Math.sqrt(e.cp / maxCE)).toFixed(2)}"><title>AS${e.from} → AS${e.to}: ${e.cp} RIS routes</title></path>`;
-    if (layers.data && e.data) s += `<path class="edge" data-a="${e.from}" data-b="${e.to}" d="${curve(a, b, -2)}" fill="none" stroke="var(--measured)" stroke-opacity=".85" stroke-width="${(1.5 + 6 * Math.sqrt(e.data / maxDE)).toFixed(2)}"><title>AS${e.from} → AS${e.to}: ${e.data} inferred sample mappings</title></path>`;
+    const faded = context.has(e.from) || context.has(e.to), opacity = faded ? ".14" : ".78";
+    if (layers.cp && e.cp) s += `<path class="edge${faded ? " context" : ""}" data-a="${e.from}" data-b="${e.to}" d="${curve(a, b, 2)}" fill="none" stroke="var(--observed)" stroke-opacity="${opacity}" stroke-dasharray="6 4" stroke-width="${(1 + 4 * Math.sqrt(e.cp / maxCE)).toFixed(2)}"><title>AS${e.from} → AS${e.to}: ${e.cp} RIS routes</title></path>`;
+    if (layers.data && e.data) s += `<path class="edge${faded ? " context" : ""}" data-a="${e.from}" data-b="${e.to}" d="${curve(a, b, -2)}" fill="none" stroke="var(--measured)" stroke-opacity="${faded ? ".2" : ".9"}" stroke-width="${(1.5 + 6 * Math.sqrt(e.data / maxDE)).toFixed(2)}"><title>AS${e.from} → AS${e.to}: ${e.data} inferred sample mappings</title></path>`;
   }
   s += `</g><g class="nodes">`;
   for (const n of nodes) {
     const p = pos[n.asn]; if (!p) continue;
     const isO = n.roles.includes("origin"), isE = n.roles.includes("adjacent");
+    const faded = context.has(n.asn);
     const w = Math.max(layers.data ? n.data / maxDN : 0, layers.cp ? n.cp / maxCN : 0);
     const rad = isO ? 0 : 6 + 9 * Math.sqrt(w);
     const stroke = isE ? "var(--observed)" : "var(--text-strong)";
     const fill = "var(--surface)";
     const name = (n.name || "").length > 22 ? n.name.slice(0, 21) + "…" : (n.name || "");
-    s += `<g class="node" data-asn="${n.asn}" tabindex="${opts.static ? -1 : 0}" role="button" aria-label="AS${n.asn} ${esc(n.name || "")}">`;
+    s += `<g class="node${faded ? " context" : ""}" data-priority="${faded ? "context" : "emphasized"}" data-asn="${n.asn}" tabindex="${opts.static ? -1 : 0}" role="button" aria-label="AS${n.asn} ${esc(n.name || "")}" opacity="${faded ? ".18" : "1"}">`;
     if (isO) {
       s += `<rect x="${p.x}" y="${p.y - 32}" width="14" height="64" fill="var(--text-strong)"/>`;
       s += `<text x="${p.x + 24}" y="${p.y - 4}" font-size="16" font-weight="600" fill="var(--text-strong)">AS${n.asn}</text>`;
