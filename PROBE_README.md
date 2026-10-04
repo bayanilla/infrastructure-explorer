@@ -1,7 +1,7 @@
 # Múcaro | Infrastructure Explorer
 
-A local, passive resource for exploring the public infrastructure context of an
-externally observed IP. Start with one IP address, review its covering prefix and
+A local, passive resource for exploring public routing context for an externally
+observed IP. Start with one IP address, review its covering prefix and
 origin ASN, then optionally **Explore ASN** for broader routing context.
 
 The BGP reference repository remains read-only. This application runs independently
@@ -20,13 +20,17 @@ never disable certificate verification to fix a source-access error.
 
 ## Lookup workflow
 
-- **IP address** is the default. Enter one public IPv4 or IPv6 address; ranges are
-  rejected. The report shows the announced prefix covering the address, and BGP
+- **Your footprint** is the default. Enter one IP or prefix, or upload a CSV or
+  text file of IPs and prefixes,
+  confirm which resolved origin ASNs are yours, and read their RIS-observed
+  neighbours. See "Footprint adjacency" in README.md for the full workflow.
+- **Public routing context** gives context for one address. Enter one public IPv4 or IPv6
+  address; ranges are rejected here and handled in footprint mode. The report shows the announced prefix covering the address, and BGP
   observations are read for that prefix. Nothing is enumerated or probed.
 - **Explore ASN** is optional broader context. Enter `AS3333` or `3333`, or use
   the **Explore AS…** button on an IP report. That button prepares the lookup;
   it does not automatically start another request.
-- Both modes read existing public RIPE data. No API key is needed or accepted.
+- All modes read existing public RIPE data. No API key is needed or accepted.
   Active scheduling, suspect-network inputs, blocklists and mitigation advice
   are disabled in the UI and API.
 - A lookup can take several minutes. Requests are made serially, with at least
@@ -87,9 +91,10 @@ exports include the retained evidence, sample destinations and source/coverage n
 The print control supports the browser's print/save-PDF flow; there is no separate
 server PDF generator or firewall export.
 
-Your target and measurement IDs are sent to RIPE, which also sees your public IP.
+Your target, measurement IDs, and in footprint mode every entry and confirmed ASN
+are sent to RIPE, which also sees your public IP.
 The application does not contact investigated hosts. Response caches last one run.
-Job results are in memory, expire after an hour, and restart clears them. Saved exports remain until
+Job results are in memory, expire an hour after they finish, and restart clears them. Saved exports remain until
 you delete them. Storage encryption is not implemented. Only theme selection is
 persisted in browser storage.
 

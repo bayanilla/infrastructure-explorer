@@ -6,6 +6,7 @@ import copy
 import io
 import json
 import re
+import ssl
 import unittest
 import urllib.parse
 from unittest.mock import patch
@@ -294,13 +295,18 @@ class SuppliedMeasurements(unittest.TestCase):
 
 
 class PerRunCache(unittest.TestCase):
+    def test_https_context_keeps_certificate_and_hostname_validation(self):
+        context = ps.verified_ssl_context()
+        self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+        self.assertTrue(context.check_hostname)
+
     """Bug: a process-wide cache served stale data labeled with a fresh retrieval time."""
 
     def setUp(self):
         self.state = {"origin": ORIGIN, "query_time": "2026-10-03T08:00:00"}
         self.calls = []
 
-    def urlopen(self, req, timeout=0):
+    def urlopen(self, req, timeout=0, context=None):
         url = req.full_url
         self.calls.append(url)
         if "network-info" in url:

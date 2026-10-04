@@ -2,9 +2,10 @@
 """
 Múcaro | Pathfinder — Public routing context for IPs and networks
 
-Passive infrastructure context from RIPEstat BGP observations and existing RIPE
-Atlas samples. IP/prefix lookup is primary; ASN exploration is broader context.
-No active measurement scheduling, provider attribution, or enforcement advice.
+Passive routing context from RIPEstat and existing RIPE Atlas samples. Footprint
+mode (a list of IPs and prefixes) is primary; single-IP and ASN lookups give the
+same context for one resource. No active measurement scheduling, provider
+attribution, or enforcement advice.
 
 Standard library only. Python 3.10+.
 
@@ -12,6 +13,9 @@ Standard library only. Python 3.10+.
     python3 probe_server.py --port 8768
 
 Investigation inputs remain local except for public-data lookups sent to RIPE.
+Footprint mode resolves each entry to its origin ASN and reads RIS-observed
+neighbours for the ASNs the analyst confirms.
+
 API keys and active measurements are not accepted. Responses are cached only
 within one run, so every run re-reads its sources and retrieval times are true.
 """
@@ -19,9 +23,13 @@ from __future__ import annotations
 
 import argparse
 import collections
+import copy
+import csv
+import io
 import ipaddress
 import json
 import re
+import ssl
 import threading
 import time
 import urllib.error
@@ -31,7 +39,7 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 SOURCEAPP = "mucaro-infrastructure-explorer"
 USER_AGENT = f"mucaro-infrastructure-explorer/{VERSION} (+https://github.com/bayanilla/infrastructure-explorer)"
 ATLAS = "https://atlas.ripe.net/api/v2"
@@ -83,6 +91,25 @@ def valid_timestamp(ts) -> bool:
     return isinstance(ts, int) and not isinstance(ts, bool) and TS_MIN <= ts <= TS_MAX
 
 
+def verified_ssl_context():
+    """Return a certificate-validating HTTPS context.
+
+    Some macOS Python framework installations advertise a CA-file location that
+    is absent until their separate certificate-installation helper has run. When
+    that happens, use the operating system CA bundle if it is present. This is a
+    trust-store fallback, never a bypass: hostname checks and certificate
+    validation remain enabled in both cases.
+    """
+    paths = ssl.get_default_verify_paths()
+    default_bundle = Path(paths.cafile) if paths.cafile else None
+    system_bundle = Path("/etc/ssl/cert.pem")
+    if default_bundle is not None and default_bundle.is_file():
+        return ssl.create_default_context()
+    if system_bundle.is_file():
+        return ssl.create_default_context(cafile=str(system_bundle))
+    return ssl.create_default_context()
+
+
 # --- Errors ---------------------------------------------------------------------
 class UserError(Exception):
     """Input or condition the analyst can fix. Message is shown verbatim."""
@@ -110,6 +137,7 @@ class Http:
 
     def __init__(self, pause: float):
         self.pause = pause
+        self._ssl_context = verified_ssl_context()
         self._lock = threading.Lock()
         self._last = 0.0
         self.count = 0
@@ -138,7 +166,7 @@ class Http:
                     headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
                 )
                 try:
-                    with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    with urllib.request.urlopen(req, timeout=timeout, context=self._ssl_context) as resp:
                         raw = resp.read(MAX_RESPONSE_BYTES + 1)
                     self._count(job)
                     if len(raw) > MAX_RESPONSE_BYTES:
@@ -216,6 +244,7 @@ class Job:
         self.error = None
         self.cache: dict[str, object] = {}
         self.requests = 0
+        self.finished: float | None = None
         self._cancel = threading.Event()
         self._lock = threading.Lock()
 
@@ -253,15 +282,20 @@ JOBS_LOCK = threading.Lock()
 
 
 def register_job() -> Job:
+    """Retention counts from when a job finished. Running jobs are never evicted."""
     now = time.time()
     with JOBS_LOCK:
-        for jid in [k for k, j in JOBS.items() if now - j.created > JOB_TTL_SECONDS]:
+        for jid in [k for k, j in JOBS.items()
+                    if j.status != "running" and now - (j.finished or j.created) > JOB_TTL_SECONDS]:
             del JOBS[jid]
         running = sum(1 for j in JOBS.values() if j.status == "running")
         if running >= 2:
             raise UserError("Two analyses are already running. Wait for one to finish or cancel it.")
         while len(JOBS) >= MAX_JOBS:
-            oldest = min(JOBS.values(), key=lambda j: j.created)
+            idle = [j for j in JOBS.values() if j.status != "running"]
+            if not idle:
+                break
+            oldest = min(idle, key=lambda j: j.finished or j.created)
             del JOBS[oldest.id]
         job = Job()
         JOBS[job.id] = job
@@ -1094,15 +1128,10 @@ def run_ip_job(job, params, http):
     job.say("Done")
 
 
-def run_job(job: Job, params: dict, http: Http) -> None:
+def _guarded(job: Job, work) -> None:
+    """Run a job body; translate failures into job state. Caches never outlive the run."""
     try:
-        if params["tier"] != "public":
-            raise UserError("Only passive public-data analysis is supported.")
-        job.check()
-        if params.get("target_asn"):
-            run_asn_job(job, params, http)
-        else:
-            run_ip_job(job, params, http)
+        work()
     except Cancelled:
         job.status = "cancelled"
         job.say("Cancelled")
@@ -1116,7 +1145,585 @@ def run_job(job: Job, params: dict, http: Http) -> None:
         job.error = f"Unexpected {type(e).__name__}: {e}"
         job.status = "failed"
     finally:
-        job.cache = {}  # responses never outlive the run
+        job.cache = {}
+        job.finished = time.time()
+
+
+def run_job(job: Job, params: dict, http: Http) -> None:
+    def work():
+        if params["tier"] != "public":
+            raise UserError("Only passive public-data analysis is supported.")
+        job.check()
+        if params.get("target_asn"):
+            run_asn_job(job, params, http)
+        else:
+            run_ip_job(job, params, http)
+    _guarded(job, work)
+
+
+# --- Footprint: IP/prefix list -> origin ASNs -> observed BGP adjacency -----------
+#
+# Input is an analyst's external footprint (for example an Expanse export reduced to
+# one column of IPs and prefixes). Pathfinder resolves each entry to the announced
+# prefix and origin ASN that public routing data shows for it, lets the analyst
+# confirm which origin ASNs are theirs, then reads RIS-observed neighbours for those
+# ASNs only. Nothing is ranked, flagged or interpreted; every count keeps RIPE's own
+# field name and documented meaning.
+
+MAX_UPLOAD_BYTES = 1024 * 1024
+MAX_FOOTPRINT_ROWS = 5000
+MAX_REJECTED_LISTED = 500
+MAX_RESOLVE_LOOKUPS = 2500
+MAX_RANGE_EXPANSION = 100
+MAX_CONFIRMED_ASNS = 50
+MAX_NEIGHBOURS_PER_ASN = 5000
+MAX_FOOTPRINT_NAMES = 150
+MAX_INPUTS_PER_ORIGIN = 200
+MIN_PREFIXLEN = {4: 8, 6: 16}
+_THRESHOLD = re.compile(r"min peers:\s*(\d+)", re.I)
+
+FOOTPRINT_FIELDS = {
+    "position": "RIPEstat asn-neighbours 'type'. left: the neighbour appears before your ASN in observed AS "
+                "paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the "
+                "left only as a direct peer of a RIS route collector.",
+    "power": "RIPEstat 'power': the number of AS paths containing this neighbour relationship with the stated position.",
+    "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbour relationship seen by RIS peers. "
+                "Despite the field name, this counts routes, not distinct peers.",
+    "v6_peers": "RIPEstat 'v6_peers': the same count for IPv6 routes.",
+}
+
+FOOTPRINT_METHODOLOGY = [
+    "Pathfinder reads public RIPE data only. It does not contact any host in the footprint or schedule measurements.",
+    "Each entry is resolved with RIPEstat prefix-overview to the announced prefix covering it and that prefix's "
+    "origin ASN(s). A prefix entry that contains more-specific announcements is mapped to their origins as well.",
+    "A resolved covering prefix is reused for later entries only when it was read directly, its list of "
+    "more-specific announcements is complete, and the entry falls outside all of them.",
+    "RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold unless low-visibility routes "
+    "are included. The threshold and the number of filtered routes are recorded with the run.",
+    "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed "
+    "are queried for neighbours; the rest stay in the record.",
+    "Adjacency comes from RIPEstat asn-neighbours: BGP neighbours of each confirmed ASN as observed by RIS. Position, "
+    "path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic "
+    "share, ownership or intent.",
+    "Route collectors do not see every session. Private peering and sessions whose routes are not propagated "
+    "toward RIS peers can be missing.",
+    "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbours belong to the provider.",
+    "This record is a point-in-time snapshot. Source times are recorded per lookup.",
+]
+
+
+def _parse_footprint_value(value: str):
+    """Return (entry, reason, syntax_ok). entry is None when the value is rejected."""
+    if len(value) > 64:
+        return None, "Too long to be an IP address or prefix.", False
+    if re.fullmatch(r"[0-9A-Fa-f:.]+\s*-\s*[0-9A-Fa-f:.]+", value):
+        return None, "Start-end ranges aren't supported. Use CIDR notation.", True
+    note = None
+    try:
+        if "/" in value:
+            try:
+                net = ipaddress.ip_network(value, strict=True)
+            except ValueError:
+                net = ipaddress.ip_network(value, strict=False)
+                note = f"Host bits set in {value}; normalized to {net}."
+            if net.prefixlen == net.max_prefixlen:
+                addr, kind = net.network_address, "ip"
+            else:
+                if net.prefixlen < MIN_PREFIXLEN[net.version]:
+                    return None, (f"/{net.prefixlen} is broader than this tool resolves "
+                                  f"(minimum /{MIN_PREFIXLEN[net.version]} for IPv{net.version})."), True
+                if not net.is_global:
+                    return None, f"{net} is special-use or private address space.", True
+                return {"value": str(net), "kind": "prefix", "note": note}, None, True
+        else:
+            addr, kind = ipaddress.ip_address(value), "ip"
+    except ValueError:
+        return None, "Not an IP address or CIDR prefix.", False
+    if not addr.is_global:
+        return None, f"{addr} is special-use or private address space.", True
+    return {"value": str(addr), "kind": kind, "note": note}, None, True
+
+
+def parse_footprint(text) -> dict:
+    """Parse a one-column CSV or text list of IPs and prefixes.
+
+    Reads the first non-empty cell of each row. Blank rows and rows starting with '#'
+    are skipped. The first content row is treated as a header only if it isn't an
+    address or prefix at all. Exact duplicates (after normalization) are counted and
+    dropped; overlapping entries are kept, because each is a distinct input.
+    """
+    if not isinstance(text, str) or not text.strip():
+        raise UserError("The file is empty. Upload a CSV or text file with one IP or prefix per row.")
+    if "\x00" in text:
+        raise UserError("The file contains binary data. Upload a CSV or plain-text list.")
+    entries, rejected, seen = [], [], set()
+    duplicates = rows = rejected_total = 0
+    header = None
+    first = True
+    reader = csv.reader(io.StringIO(text.lstrip("﻿")))
+    try:
+        for row in reader:
+            value = next((c.strip().strip('"\'').strip() for c in row if c.strip().strip('"\'').strip()), "")
+            if not value or value.startswith("#"):
+                continue
+            rows += 1
+            entry, reason, syntax_ok = _parse_footprint_value(value)
+            if first and entry is None and not syntax_ok:
+                header = value[:64]
+                first = False
+                continue
+            first = False
+            if entry is None:
+                rejected_total += 1
+                if len(rejected) < MAX_REJECTED_LISTED:
+                    rejected.append({"line": reader.line_num, "value": value[:80], "reason": reason})
+                continue
+            if entry["value"] in seen:
+                duplicates += 1
+                continue
+            seen.add(entry["value"])
+            entry["line"] = reader.line_num
+            entries.append(entry)
+            if len(entries) > MAX_FOOTPRINT_ROWS:
+                raise UserError(f"The file has more than {MAX_FOOTPRINT_ROWS} distinct entries. Split it into smaller files.")
+    except csv.Error as e:
+        raise UserError(f"The file couldn't be read as CSV near line {reader.line_num}: {e}.") from None
+    if not entries:
+        detail = f" First problem: line {rejected[0]['line']}, {rejected[0]['reason']}" if rejected else ""
+        raise UserError(f"No usable IPs or prefixes were found ({rejected_total} rows rejected).{detail}")
+    return {"rows_read": rows, "header": header, "accepted": len(entries), "duplicates": duplicates,
+            "rejected_total": rejected_total, "rejected": rejected,
+            "rejected_truncated": rejected_total > len(rejected), "entries": entries}
+
+
+def parse_keywords(raw) -> list[str]:
+    words = []
+    for w in re.split(r"[,;\n]+", str(raw or "")):
+        w = w.strip().lower()
+        if len(w) >= 3 and w not in words:
+            words.append(w[:60])
+    return words[:10]
+
+
+def validate_footprint_request(body) -> dict:
+    if not isinstance(body, dict):
+        raise UserError("Request body must be a JSON object.")
+    if not isinstance(body.get("include_low_visibility", False), bool):
+        raise UserError("include_low_visibility must be true or false.")
+    return {"parsed": parse_footprint(body.get("csv")),
+            "keywords": parse_keywords(body.get("org_keywords")),
+            "include_low_visibility": body.get("include_low_visibility", False)}
+
+
+def _overview(resp) -> dict:
+    data = resp.get("data") if isinstance(resp, dict) else None
+    if not isinstance(data, dict):
+        raise UserError("RIPE returned an unsupported prefix-overview response.")
+    asns = []
+    for a in data.get("asns") or []:
+        if isinstance(a, dict) and isinstance(a.get("asn"), int) and not isinstance(a.get("asn"), bool):
+            asns.append({"asn": a["asn"], "holder": a["holder"] if isinstance(a.get("holder"), str) else None})
+    try:
+        resource = ipaddress.ip_network(data.get("resource"), strict=False)
+    except (TypeError, ValueError):
+        resource = None
+    related = []
+    for r in data.get("related_prefixes") or []:
+        p = r if isinstance(r, str) else (r.get("prefix") if isinstance(r, dict) else None)
+        try:
+            related.append(ipaddress.ip_network(p, strict=False))
+        except (TypeError, ValueError):
+            continue
+    total = data.get("actual_num_related")
+    total = total if isinstance(total, int) and not isinstance(total, bool) else len(related)
+    filtered = data.get("num_filtered_out")
+    messages = []
+    for m in resp.get("messages") or []:
+        if isinstance(m, (list, tuple)) and len(m) == 2 and isinstance(m[1], str):
+            messages.append(m[1][:300])
+    return {"announced": data.get("announced") is True, "asns": asns, "resource": resource,
+            "less_specific": data.get("is_less_specific") is True, "related": related,
+            "related_total": max(total, len(related)),
+            "filtered": filtered if isinstance(filtered, int) and not isinstance(filtered, bool) else 0,
+            "query_time": data.get("query_time") if isinstance(data.get("query_time"), str) else None,
+            "messages": messages}
+
+
+class _LookupBudget(Exception):
+    pass
+
+
+def resolve_footprint(http, job, entries, min_peers, warnings):
+    """Resolve each entry to covering announcement(s) and origin ASN(s).
+
+    Returns (results aligned with entries, stats).
+    """
+    nets = [ipaddress.ip_network(e["value"]) for e in entries]
+    order = sorted(range(len(entries)), key=lambda i: (nets[i].version, int(nets[i].network_address), nets[i].prefixlen))
+    results: list = [None] * len(entries)
+    known: list[dict] = []
+    learned: set[str] = set()
+    stats = {"lookups": 0, "reused": 0, "filtered_routes": 0, "lookups_with_filtering": 0,
+             "query_times": set(), "messages": collections.Counter(), "thresholds": set()}
+
+    def lookup(resource: str) -> dict:
+        if stats["lookups"] >= MAX_RESOLVE_LOOKUPS:
+            raise _LookupBudget()
+        stats["lookups"] += 1
+        q = {"resource": resource}
+        if min_peers is not None:
+            q["min_peers_seeing"] = str(min_peers)
+        ov = _overview(http.get_json(stat_url("prefix-overview", **q), job=job))
+        if ov["query_time"]:
+            stats["query_times"].add(ov["query_time"])
+        for m in ov["messages"]:
+            match = _THRESHOLD.search(m)
+            if match:
+                stats["thresholds"].add(int(match.group(1)))
+            stats["messages"][re.sub(r"\d+", "N", m)] += 1
+        if ov["filtered"]:
+            stats["filtered_routes"] += ov["filtered"]
+            stats["lookups_with_filtering"] += 1
+        return ov
+
+    def learn(ov):
+        res = ov["resource"]
+        if ov["announced"] and ov["asns"] and res is not None and not ov["less_specific"] and str(res) not in learned:
+            learned.add(str(res))
+            known.append({"net": res, "asns": ov["asns"],
+                          "more_specifics": [r for r in ov["related"] if r.version == res.version and r != res and r.subnet_of(res)],
+                          "complete": ov["related_total"] <= len(ov["related"])})
+
+    def reusable(net):
+        for k in known:
+            if (k["complete"] and net.version == k["net"].version and net.subnet_of(k["net"])
+                    and not any(net.overlaps(m) for m in k["more_specifics"])):
+                return k
+        return None
+
+    def resolve_part(prefix):
+        k = reusable(prefix)
+        if k is not None:
+            stats["reused"] += 1
+            return {"prefix": str(prefix), "covering_prefix": str(k["net"]), "origins": k["asns"], "method": "reused"}
+        ov = lookup(str(prefix))
+        learn(ov)
+        if ov["announced"] and ov["asns"]:
+            return {"prefix": str(prefix), "covering_prefix": str(ov["resource"]), "origins": ov["asns"], "method": "queried"}
+        return {"prefix": str(prefix), "covering_prefix": None, "origins": [], "method": "queried"}
+
+    budget_hit = 0
+    for pos, i in enumerate(order, 1):
+        job.check()
+        e, net = entries[i], nets[i]
+        job.set_progress(f"Resolving {pos} of {len(entries)} · {stats['lookups']} RIPE lookups so far")
+        base = {"input": e["value"], "kind": e["kind"], "line": e.get("line"), "covering_prefix": None,
+                "origins": [], "more_specifics": [], "more_specifics_total": 0,
+                "more_specifics_truncated": False, "method": None, "filtered_routes": 0, "error": None}
+        k = reusable(net)
+        if k is not None:
+            stats["reused"] += 1
+            results[i] = {**base, "status": "announced", "covering_prefix": str(k["net"]),
+                          "origins": k["asns"], "method": "reused"}
+            continue
+        try:
+            ov = lookup(e["value"])
+        except _LookupBudget:
+            budget_hit += 1
+            results[i] = {**base, "status": "not_resolved"}
+            continue
+        except (ApiError, UserError) as err:
+            results[i] = {**base, "status": "lookup_failed", "error": str(getattr(err, "detail", err))[:300]}
+            continue
+        learn(ov)
+        row = {**base, "method": "queried", "filtered_routes": ov["filtered"]}
+        if ov["announced"] and ov["asns"]:
+            row.update(status="announced", covering_prefix=str(ov["resource"]) if ov["resource"] else None,
+                       origins=ov["asns"])
+        else:
+            row.update(status="not_announced")
+        if e["kind"] == "prefix":
+            parts = [r for r in ov["related"] if r.version == net.version and r != net and r.subnet_of(net)]
+            row["more_specifics_total"] = len(parts)
+            row["more_specifics_truncated"] = ov["related_total"] > len(ov["related"]) or len(parts) > MAX_RANGE_EXPANSION
+            for part in parts[:MAX_RANGE_EXPANSION]:
+                job.check()
+                try:
+                    row["more_specifics"].append(resolve_part(part))
+                except _LookupBudget:
+                    row["more_specifics_truncated"] = True
+                    budget_hit += 1
+                    break
+                except (ApiError, UserError) as err:
+                    row["more_specifics"].append({"prefix": str(part), "covering_prefix": None, "origins": [],
+                                                  "method": "queried", "error": str(getattr(err, "detail", err))[:300]})
+            if row["status"] == "not_announced" and any(p["origins"] for p in row["more_specifics"]):
+                row["status"] = "partially_announced"
+        results[i] = row
+        # Read a covering prefix directly when it will serve at least two more entries.
+        cov = ov["resource"] if ov["announced"] and ov["less_specific"] else None
+        if cov is not None and str(cov) not in learned:
+            pending = sum(1 for j in order[pos:] if nets[j].version == cov.version and nets[j].subnet_of(cov))
+            if pending >= 2:
+                try:
+                    learn(lookup(str(cov)))
+                except (_LookupBudget, ApiError, UserError):
+                    pass
+    if budget_hit:
+        warnings.append(f"The run reached its limit of {MAX_RESOLVE_LOOKUPS} RIPE lookups. {budget_hit} entr"
+                        f"{'y was' if budget_hit == 1 else 'ies were'} not fully resolved; split the file to resolve the rest.")
+    return results, stats
+
+
+def mapped_asns(row) -> list[int]:
+    out = [o["asn"] for o in row["origins"]]
+    for part in row["more_specifics"]:
+        out += [o["asn"] for o in part["origins"]]
+    return list(dict.fromkeys(out))
+
+
+def group_origins(results, keywords) -> list[dict]:
+    groups: dict[int, dict] = {}
+    total = len(results)
+    for row in results:
+        asns = mapped_asns(row)
+        multi = len(row["origins"]) > 1
+        prefix_by_asn = collections.defaultdict(set)
+        for o in row["origins"]:
+            if row["covering_prefix"]:
+                prefix_by_asn[o["asn"]].add(row["covering_prefix"])
+        holders = {o["asn"]: o["holder"] for o in row["origins"]}
+        for part in row["more_specifics"]:
+            for o in part["origins"]:
+                prefix_by_asn[o["asn"]].add(part["covering_prefix"] or part["prefix"])
+                holders.setdefault(o["asn"], o["holder"])
+        for a in asns:
+            g = groups.setdefault(a, {"asn": a, "holder": None, "entries": 0, "inputs": [], "prefixes": set(),
+                                      "multi_origin_entries": 0})
+            g["holder"] = g["holder"] or holders.get(a)
+            g["entries"] += 1
+            if len(g["inputs"]) < MAX_INPUTS_PER_ORIGIN:
+                g["inputs"].append(row["input"])
+            g["prefixes"] |= prefix_by_asn.get(a, set())
+            g["multi_origin_entries"] += 1 if multi else 0
+    out = []
+    for g in groups.values():
+        holder = (g["holder"] or "").lower()
+        match = next((k for k in keywords if k in holder), None)
+        out.append({**g, "prefixes": sorted(g["prefixes"], key=lambda p: (":" in p, p)),
+                    "share": round(g["entries"] / total, 4) if total else None,
+                    "inputs_truncated": g["entries"] > len(g["inputs"]),
+                    "default_selected": match is not None, "matched_keyword": match})
+    out.sort(key=lambda g: (-g["entries"], g["asn"]))
+    return out
+
+
+def run_footprint_resolution(job, params, http):
+    parsed, keywords = params["parsed"], params["keywords"]
+    min_peers = 1 if params["include_low_visibility"] else None
+    entries = parsed["entries"]
+    warnings: list[str] = []
+    job.say(f"{parsed['accepted']} entries accepted, {parsed['duplicates']} duplicates removed, "
+            f"{parsed['rejected_total']} rows rejected")
+    results, stats = resolve_footprint(http, job, entries, min_peers, warnings)
+    origins = group_origins(results, keywords)
+    counts = collections.Counter(r["status"] for r in results)
+    threshold = sorted(stats["thresholds"])
+    if stats["filtered_routes"]:
+        warnings.append(
+            f"RIPE left out {stats['filtered_routes']} low-visibility route(s) across {stats['lookups_with_filtering']} "
+            f"lookup(s) (minimum RIS peers: {', '.join(map(str, threshold)) or 'not reported'}). They are not in this "
+            "resolution. Run again with low-visibility routes included to see them.")
+    truncated = sum(1 for r in results if r["more_specifics_truncated"])
+    if truncated:
+        warnings.append(f"{truncated} prefix entr{'y lists' if truncated == 1 else 'ies list'} more-specific "
+                        f"announcements beyond what was resolved (RIPE truncation or the {MAX_RANGE_EXPANSION}-per-entry limit).")
+    if counts.get("lookup_failed"):
+        warnings.append(f"{counts['lookup_failed']} entr{'y' if counts['lookup_failed'] == 1 else 'ies'} could not be "
+                        "looked up. They are listed with the error RIPE returned.")
+    multi = sum(1 for r in results if len(r["origins"]) > 1)
+    if multi:
+        warnings.append(f"{multi} entr{'y is' if multi == 1 else 'ies are'} covered by a prefix announced by more than one origin ASN. "
+                        "Each origin is listed.")
+    job.result = {
+        "kind": "footprint_resolution",
+        "meta": {"tool": "Múcaro | Pathfinder", "version": VERSION, "generated_utc": utc_now(), "job_id": job.id},
+        "settings": {"org_keywords": keywords, "include_low_visibility": params["include_low_visibility"],
+                     "visibility_threshold": 1 if min_peers else (threshold[0] if len(threshold) == 1 else None),
+                     "visibility_threshold_note": ("min_peers_seeing=1 was requested." if min_peers else
+                                                   "RIPEstat default; the value is taken from RIPE's response messages.")},
+        "inputs": {k: parsed[k] for k in ("rows_read", "header", "accepted", "duplicates", "rejected_total",
+                                          "rejected", "rejected_truncated", "entries")},
+        "resolution": results,
+        "status_counts": dict(counts),
+        "origins": origins,
+        "sources": {"prefix_overview": {"name": "RIPEstat prefix-overview",
+                                        "url": stat_url("prefix-overview", resource="{entry}"),
+                                        "lookups": stats["lookups"], "reused": stats["reused"],
+                                        "query_times": sorted(stats["query_times"]),
+                                        "filtered_routes": stats["filtered_routes"],
+                                        "messages": [{"message": m, "count": c} for m, c in stats["messages"].most_common(50)]}},
+        "warnings": warnings,
+        "requests": job.requests,
+    }
+    job.status = "done"
+    job.say(f"Resolved to {len(origins)} origin ASNs with {stats['lookups']} lookups ({stats['reused']} reused)")
+
+
+def _count(v) -> bool:
+    return isinstance(v, int) and not isinstance(v, bool) and v >= 0
+
+
+def read_neighbours(http, asn, job) -> dict:
+    url = stat_url("asn-neighbours", resource=f"AS{asn}")
+    source = {"name": "RIPEstat asn-neighbours", "url": url, "status": "unavailable", "retrieved_at": None,
+              "query_starttime": None, "query_endtime": None, "latest_time": None, "version": None,
+              "messages": [], "neighbour_counts": None, "excluded": 0, "truncated": False}
+    try:
+        resp = http.get_json(url, job=job)
+    except ApiError as e:
+        source["error"] = e.detail
+        return {"source": source, "neighbours": []}
+    data = resp.get("data") if isinstance(resp, dict) else None
+    if not isinstance(data, dict) or not isinstance(data.get("neighbours"), list):
+        source["error"] = "Unsupported response."
+        return {"source": source, "neighbours": []}
+    out = []
+    for n in data["neighbours"]:
+        if (isinstance(n, dict) and _count(n.get("asn")) and 1 <= n["asn"] <= 4294967295
+                and n.get("type") in ("left", "right", "uncertain")
+                and all(_count(n.get(k)) for k in ("power", "v4_peers", "v6_peers"))):
+            out.append({"asn": n["asn"], "type": n["type"], "power": n["power"],
+                        "v4_peers": n["v4_peers"], "v6_peers": n["v6_peers"]})
+        else:
+            source["excluded"] += 1
+    source.update(status="available", retrieved_at=utc_now(), version=resp.get("version"),
+                  query_starttime=data.get("query_starttime"), query_endtime=data.get("query_endtime"),
+                  latest_time=data.get("latest_time"),
+                  neighbour_counts=data.get("neighbour_counts") if isinstance(data.get("neighbour_counts"), dict) else None,
+                  messages=[m[1][:300] for m in resp.get("messages") or []
+                            if isinstance(m, (list, tuple)) and len(m) == 2 and isinstance(m[1], str)])
+    if len(out) > MAX_NEIGHBOURS_PER_ASN:
+        source["truncated"] = True
+        out = out[:MAX_NEIGHBOURS_PER_ASN]
+    out.sort(key=lambda n: (n["asn"], n["type"]))
+    return {"source": source, "neighbours": out}
+
+
+def aggregate_neighbours(per_asn, confirmed) -> list[dict]:
+    rows: dict[int, dict] = {}
+    for entry in per_asn:
+        for n in entry["neighbours"]:
+            r = rows.setdefault(n["asn"], {"asn": n["asn"], "name": None, "relations": [],
+                                           "is_confirmed_asn": n["asn"] in confirmed})
+            r["relations"].append({"your_asn": entry["asn"], "type": n["type"], "power": n["power"],
+                                   "v4_peers": n["v4_peers"], "v6_peers": n["v6_peers"]})
+    out = []
+    for r in rows.values():
+        rel = r["relations"]
+        out.append({**r, "your_asn_count": len({x["your_asn"] for x in rel}),
+                    "positions": sorted({x["type"] for x in rel}),
+                    "max_power": max(x["power"] for x in rel),
+                    "max_v4_peers": max(x["v4_peers"] for x in rel),
+                    "max_v6_peers": max(x["v6_peers"] for x in rel)})
+    out.sort(key=lambda r: (-r["your_asn_count"], -(r["max_v4_peers"] + r["max_v6_peers"]), r["asn"]))
+    return out
+
+
+def validate_adjacency_request(body) -> dict:
+    if not isinstance(body, dict):
+        raise UserError("Request body must be a JSON object.")
+    jid = body.get("resolution_job")
+    if not isinstance(jid, str) or not re.fullmatch(r"[0-9a-f]{32}", jid):
+        raise UserError("Missing resolution reference. Resolve the footprint again.")
+    with JOBS_LOCK:
+        job = JOBS.get(jid)
+    if job is None or job.status != "done" or not isinstance(job.result, dict) \
+            or job.result.get("kind") != "footprint_resolution":
+        raise UserError("That resolution has expired or didn't finish. Upload the file again to resolve it.")
+    available = {o["asn"] for o in job.result["origins"]}
+    raw = body.get("asns")
+    if not isinstance(raw, list) or not raw:
+        raise UserError("Select at least one origin ASN as yours.")
+    asns = []
+    for a in raw:
+        m = _ASN_TOKEN.fullmatch(str(a).strip()) if isinstance(a, (str, int)) and not isinstance(a, bool) else None
+        if not m or int(m.group(1)) not in available:
+            raise UserError(f"{str(a)[:20]} isn't one of the origin ASNs in this resolution.")
+        if int(m.group(1)) not in asns:
+            asns.append(int(m.group(1)))
+    if len(asns) > MAX_CONFIRMED_ASNS:
+        raise UserError(f"Select at most {MAX_CONFIRMED_ASNS} ASNs per run.")
+    return {"resolution": copy.deepcopy(job.result), "asns": asns}
+
+
+def run_footprint_adjacency(job, params, http):
+    resolution, confirmed = params["resolution"], params["asns"]
+    holders = {o["asn"]: o["holder"] for o in resolution["origins"]}
+    per_asn, warnings = [], list(resolution["warnings"])
+    for i, asn in enumerate(confirmed, 1):
+        job.check()
+        job.say(f"Reading observed neighbours for AS{asn} ({i} of {len(confirmed)})")
+        got = read_neighbours(http, asn, job)
+        per_asn.append({"asn": asn, "holder": holders.get(asn), **got})
+        if got["source"]["status"] != "available":
+            warnings.append(f"Neighbour data for AS{asn} is unavailable ({got['source'].get('error') or 'no detail'}). "
+                            "Its neighbours are unknown, not absent.")
+        if got["source"]["excluded"]:
+            warnings.append(f"{got['source']['excluded']} malformed neighbour record(s) for AS{asn} were excluded.")
+        if got["source"]["truncated"]:
+            warnings.append(f"AS{asn} has more than {MAX_NEIGHBOURS_PER_ASN} neighbours; the record keeps the first "
+                            f"{MAX_NEIGHBOURS_PER_ASN} by ASN.")
+    neighbours = aggregate_neighbours(per_asn, set(confirmed))
+    names = {a: h for a, h in holders.items() if h}
+    wanted = [n["asn"] for n in neighbours if n["asn"] not in names and public_asn(n["asn"])]
+    if len(wanted) > MAX_FOOTPRINT_NAMES:
+        warnings.append(f"Holder names were looked up for {MAX_FOOTPRINT_NAMES} of {len(wanted)} neighbours, in table "
+                        "order; the rest show the ASN only.")
+    for i, a in enumerate(wanted[:MAX_FOOTPRINT_NAMES], 1):
+        job.check()
+        job.set_progress(f"Naming neighbours ({i} of {min(len(wanted), MAX_FOOTPRINT_NAMES)}): AS{a}")
+        name = as_name(http, a, job)
+        if name:
+            names[a] = name
+    for n in neighbours:
+        n["name"] = names.get(n["asn"])
+    available = [p for p in per_asn if p["source"]["status"] == "available"]
+    times = sorted({p["source"]["query_starttime"] for p in available if p["source"]["query_starttime"]})
+    shared = sum(1 for n in neighbours if n["your_asn_count"] > 1)
+    summary = [f"{resolution['inputs']['accepted']} footprint entries map to {len(resolution['origins'])} origin "
+               f"ASN{'s' if len(resolution['origins']) != 1 else ''}; {len(confirmed)} confirmed as yours.",
+               f"RIS observes {len(neighbours)} distinct network{'s' if len(neighbours) != 1 else ''} adjacent to the "
+               f"confirmed ASNs" + (f" (RIPEstat asn-neighbours, {', '.join(times)})." if times else ".")]
+    if shared:
+        summary.append(f"{shared} of them {'is' if shared == 1 else 'are'} adjacent to more than one confirmed ASN.")
+    if len(available) != len(per_asn):
+        summary.append(f"Neighbour data is unavailable for {len(per_asn) - len(available)} confirmed ASN(s).")
+    summary.append("Adjacency is observed BGP position. It does not establish a business relationship, traffic share, "
+                   "ownership or intent.")
+    origins = [{**o, "confirmed": o["asn"] in confirmed} for o in resolution["origins"]]
+    job.result = {
+        "kind": "footprint_run",
+        "meta": {"tool": "Múcaro | Pathfinder", "version": VERSION, "generated_utc": utc_now(),
+                 "resolution_generated_utc": resolution["meta"]["generated_utc"]},
+        "settings": resolution["settings"],
+        "inputs": resolution["inputs"],
+        "resolution": resolution["resolution"],
+        "status_counts": resolution["status_counts"],
+        "origins": origins,
+        "confirmed_asns": confirmed,
+        "adjacency": {"per_asn": per_asn, "neighbours": neighbours, "field_definitions": FOOTPRINT_FIELDS},
+        "sources": {**resolution["sources"],
+                    "asn_neighbours": {"name": "RIPEstat asn-neighbours",
+                                       "url": stat_url("asn-neighbours", resource="AS{asn}"),
+                                       "query_times": times}},
+        "summary": summary,
+        "warnings": warnings,
+        "methodology": FOOTPRINT_METHODOLOGY,
+        "requests": {"resolution": resolution["requests"], "adjacency": job.requests},
+    }
+    job.status = "done"
+    job.say("Done")
 
 
 # --- HTTP server ----------------------------------------------------------------
@@ -1147,6 +1754,15 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Security-Policy", CSP)
         self.end_headers()
         self.wfile.write(body)
+
+    def _discard(self, length: int) -> None:
+        """Read and drop an oversized body so the client receives the 413 instead of a reset."""
+        remaining = min(max(length, 0), 16 * 1024 * 1024)
+        while remaining > 0:
+            chunk = self.rfile.read(min(65536, remaining))
+            if not chunk:
+                break
+            remaining -= len(chunk)
 
     def do_GET(self):
         if not self._host_ok():
@@ -1187,25 +1803,35 @@ class Handler(BaseHTTPRequestHandler):
             if job:
                 job.cancel()
             return self._send(200, {"ok": True})
-        if path != "/api/analyze":
+        routes = {
+            "/api/analyze": (MAX_BODY_BYTES, validate_request, run_job),
+            "/api/footprint/resolve": (MAX_UPLOAD_BYTES + MAX_BODY_BYTES, validate_footprint_request,
+                                       lambda job, params, http: _guarded(job, lambda: run_footprint_resolution(job, params, http))),
+            "/api/footprint/adjacency": (MAX_BODY_BYTES, validate_adjacency_request,
+                                         lambda job, params, http: _guarded(job, lambda: run_footprint_adjacency(job, params, http))),
+        }
+        if path not in routes:
             return self._send(404, {"error": "Not found"})
+        limit, validate, runner = routes[path]
         if not (self.headers.get("Content-Type", "").split(";")[0].strip() == "application/json"):
             return self._send(415, {"error": "Send JSON."})
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
             length = 0
-        if length <= 0 or length > MAX_BODY_BYTES:
-            return self._send(413, {"error": "Request body is empty or too large."})
+        if length <= 0 or length > limit:
+            self._discard(length)
+            return self._send(413, {"error": "The upload is empty or larger than 1 MB." if path == "/api/footprint/resolve"
+                                    else "Request body is empty or too large."})
         try:
             body = json.loads(self.rfile.read(length).decode("utf-8"))
-            params = validate_request(body)
+            params = validate(body)
             job = register_job()
         except UserError as e:
             return self._send(400, {"error": str(e)})
         except (json.JSONDecodeError, UnicodeDecodeError):
             return self._send(400, {"error": "Request body isn't valid JSON."})
-        threading.Thread(target=run_job, args=(job, params, self.server.http), daemon=True).start()
+        threading.Thread(target=runner, args=(job, params, self.server.http), daemon=True).start()
         return self._send(202, {"job_id": job.id})
 
 
@@ -1218,7 +1844,7 @@ def main() -> None:
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
     server.allowed_hosts = {f"127.0.0.1:{args.port}", f"localhost:{args.port}"}
     server.http = Http(pause=max(2.0, args.pause))
-    print(f"Infrastructure explorer {VERSION} on http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
+    print(f"Pathfinder {VERSION} on http://127.0.0.1:{args.port}  (Ctrl+C to stop)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

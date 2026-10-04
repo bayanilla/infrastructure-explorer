@@ -2,10 +2,16 @@
 
 **Public routing context for IPs and networks.**
 
-Múcaro | Pathfinder helps an analyst start with an IP observed at a
-perimeter, identify its announced prefix and selected origin ASN, then review
-public routing observations and existing measurement samples. An analyst can
-then explore that ASN for broader routing context.
+Múcaro | Pathfinder shows which networks the internet observes next to yours.
+Start with your external footprint, for example the IPs and prefixes from an
+Expanse export. Pathfinder resolves each entry to its announced prefix and
+origin ASN, lets you confirm which origin ASNs are yours, and reads the BGP
+neighbours that RIPE's route collectors observe for them. Those neighbours are
+the part an inside-out view tends to miss: sessions and upstreams that the rest
+of the internet sees, whether or not your own records do.
+
+For a single address or network, the IP and ASN lookups give the same public
+routing context one resource at a time.
 
 Think of it as a map of public road observations around an address: it shows
 routes that public sources reported, but it does not show the route a particular
@@ -16,13 +22,14 @@ documentation; it does not establish source identity, traffic flow,
 reachability, physical location, provider status, government control, malicious
 intent, or an enforcement boundary.
 
-**Status:** local, single-IP and single-ASN workflow. The server binds only to
-loopback by default. It is not a shared or public service design.
+**Status:** local footprint, single-IP and single-ASN workflows. The server binds
+only to loopback by default. It is not a shared or public service design.
 
 ## Contents
 
 - [Quick start](#quick-start)
 - [Choose a lookup mode](#choose-a-lookup-mode)
+- [Footprint adjacency](#footprint-adjacency)
 - [Worked investigation](#worked-investigation)
 - [Reading the routing map](#reading-the-routing-map)
 - [Evidence, calculations, and limits](#evidence-calculations-and-limits)
@@ -71,12 +78,24 @@ would weaken the evidence-source connection.
 
 ### 2. Run a first lookup
 
+For your footprint:
+
+1. Enter one public IP address or prefix, or put your IPs and prefixes in one
+   column of a CSV or text file. A header row is fine.
+2. Open the local address above. **Your footprint** is selected by default.
+3. Enter the single IP or prefix, or choose the file. Optionally enter your organization's holder name as RIPE
+   records it, such as `Example Org`, so your own ASNs are pre-checked.
+4. Select **Resolve footprint**, review the origin ASNs, check the ones that are
+   yours, and select **Read adjacency**.
+
+For one resource:
+
 1. Open the local address above.
-2. Select **IP address** and enter one public IPv4 or IPv6 address, or select
+2. Select **Public routing context** and enter one public IPv4 or IPv6 address, or select
    **Explore ASN** and enter a public ASN such as `AS3333`.
 3. Leave **Include RIS routing observations** enabled unless you deliberately
    want to omit that source from this run.
-4. Select **Analyze IP** or **Explore ASN**.
+4. Select **Analyze public routing context** or **Explore ASN**.
 5. Review source status, timestamps, warnings, and coverage notes before
    reading the diagram or exporting a report.
 
@@ -91,34 +110,111 @@ network.
 
 ## Choose a lookup mode
 
-| | IP address | Explore ASN |
-| --- | --- | --- |
-| Primary question | What public prefix, selected origin ASN, routing observations, and existing samples provide context for this address? | What observed prefixes, BGP paths, and existing Atlas samples provide context for this ASN? |
-| Input | One globally routed IPv4 or IPv6 address | One public ASN, with or without the `AS` prefix |
-| BGP resource | The covering prefix | The requested ASN |
-| Prefix handling | RIPEstat identifies the announced prefix covering the address | Lists retained prefixes announced by the ASN in BGP observations |
-| Atlas treatment | Existing samples to the IP, then possibly to other addresses Atlas classifies under the selected origin ASN | Existing samples to specific addresses Atlas classifies under the ASN |
-| Hop-to-AS mapping | Reply addresses can be mapped through current prefix-origin data and are labeled as inferred | Not performed; the graph remains BGP context only |
-| Typical use | Context for one observed address | Broader routing context after reviewing an IP result |
+| | Your footprint | Public routing context | Explore ASN |
+| --- | --- | --- | --- |
+| Primary question | Which networks are observed adjacent to the origin ASNs behind my IPs and prefixes? | What public prefix, selected origin ASN, routing observations, and existing samples provide context for this address? | What observed prefixes, BGP paths, and existing Atlas samples provide context for this ASN? |
+| Input | One public IP or prefix, or a CSV or text file of IPs and prefixes up to 5,000 entries | One globally routed IPv4 or IPv6 address | One public ASN, with or without the `AS` prefix |
+| BGP resource | Each entry's covering announcement, then each confirmed ASN | The covering prefix | The requested ASN |
+| Prefix handling | Each entry is resolved to its announced prefix and origin ASN; prefix entries include their more-specific announcements | RIPEstat identifies the announced prefix covering the address | Lists retained prefixes announced by the ASN in BGP observations |
+| Atlas treatment | Not used | Existing samples to the IP, then possibly to other addresses Atlas classifies under the selected origin ASN | Existing samples to specific addresses Atlas classifies under the ASN |
+| Adjacency source | RIPEstat asn-neighbours for each confirmed ASN | BGP paths for the covering prefix, plus inferred hop mappings | BGP paths ending at the ASN |
+| Typical use | Your whole external footprint, at a point in time | Context for one observed address | Broader routing context after reviewing an IP result |
 
-Both modes use RIPEstat and RIPE Atlas public data only. Neither mode establishes
-the actual path of an inbound perimeter event.
+All modes use RIPEstat and RIPE Atlas public data only. None establishes the
+actual path of an inbound perimeter event.
 
 ### Accepted and rejected input
 
 - **Accepted IPs:** one globally routed IPv4 or IPv6 address.
 - **Accepted ASNs:** public ASNs in the range supported by the application,
   entered as `AS3333` or `3333`.
-- **Not accepted:** CIDRs, address ranges, private or special-use IPs, private
-  or reserved ASNs, DNS names, URLs, CSV uploads, and multiple targets in one
-  request.
+- **Footprint files:** one IP or prefix per row, CSV or plain text, up to 5,000
+  distinct entries and 1 MB. See [Footprint adjacency](#footprint-adjacency).
+- **Not accepted in IP or ASN mode:** CIDRs, address ranges, private or
+  special-use IPs, private or reserved ASNs, DNS names, URLs, and multiple
+  targets in one request. Use footprint mode for prefixes and lists.
 - **Optional measurement IDs:** up to ten existing RIPE Atlas measurement IDs,
   separated by spaces, commas, or semicolons. They are validated before their
   results are used.
 
-The current vertical slice intentionally accepts one IP or one ASN at a time.
-It does not yet implement CSV ingestion, CIDR analysis, bulk lookup, RPKI
-validation, or scheduled monitoring.
+RPKI validation, scheduled monitoring and comparison between runs are not
+implemented. Each footprint run is a point-in-time record.
+
+## Footprint adjacency
+
+**Question:** Which networks does the rest of the internet observe next to the
+networks behind my external footprint?
+
+### 1. Upload and resolve
+
+Pathfinder reads the first non-empty cell of each row. Blank rows and rows
+starting with `#` are skipped. The first row is treated as a header only if it
+isn't an address or prefix at all. Every other row that can't be used is listed
+with its line number and reason: private or special-use space, malformed
+values, start-end ranges, and prefixes broader than /8 (IPv4) or /16 (IPv6).
+Exact duplicates are counted and dropped after normalization, so `193.0.6.139`
+and `193.0.6.139/32` are one entry. Overlapping entries are kept, because each is
+something you listed.
+
+Each entry is resolved with RIPEstat prefix-overview to the announced prefix
+that covers it and that prefix's origin ASN or ASNs:
+
+- **IP inside an announcement:** mapped to the most specific covering prefix.
+- **Prefix entry:** mapped to its covering announcement, plus the origins of any
+  more-specific announcements inside it. A /21 containing a /24 announced by a
+  hosting provider maps to both.
+- **Range not announced as a whole:** expanded into the announcements inside it,
+  up to 100 per entry.
+- **Nothing covering it:** listed as having no covering announcement.
+
+An already-read covering prefix answers later entries only when Pathfinder read
+that prefix directly, its list of more-specific announcements is complete, and
+the entry falls outside all of them. Otherwise the entry is looked up on its
+own. This keeps large, clustered lists fast without hiding a more-specific route.
+
+RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold
+(10 at the time of writing). The resolution records how many were left out.
+Select **Include low-visibility routes** to request every route RIPE has.
+
+### 2. Confirm which origin ASNs are yours
+
+Every origin ASN is listed with its RIPE holder name, the number and share of
+your entries that map to it, and its announced prefixes. An ASN is pre-checked
+only when its holder name contains a keyword you entered. Pathfinder doesn't
+guess from share alone, because a cloud provider can hold most of a footprint.
+
+Checked ASNs are treated as yours. Unchecked ASNs stay in the record and their
+neighbours are not read. For entries in cloud, CDN or hosting space, the origin
+and its neighbours belong to the provider, so leaving those unchecked keeps the
+result about your own networks.
+
+### 3. Read adjacency
+
+For each confirmed ASN, Pathfinder reads RIPEstat asn-neighbours: the BGP
+neighbours RIS observes for that ASN. The report shows:
+
+- **Your confirmed ASNs:** footprint entries, neighbour count and data time.
+- **Networks adjacent to your footprint:** one row per neighbour, with each of
+  your ASNs it touches. Sort by any column. Nothing is flagged or ranked by
+  importance.
+- **Combined view:** drawn when there are up to 5 confirmed ASNs and 40
+  neighbours. A network adjacent to more than one of your ASNs has a thicker
+  circle; arcs join two of your own ASNs.
+- **Per-ASN detail:** each ASN's neighbours, source times and RIPE messages, and
+  an option to load that ASN's observed BGP path overview. That overview is a
+  separate Explore ASN run and isn't added to the footprint record.
+
+The counts keep RIPE's own fields and meanings:
+
+| Column | RIPE field | Meaning |
+| --- | --- | --- |
+| Position | `type` | `left`: the neighbour appears before your ASN in observed AS paths (toward the collector). `right`: after it. `uncertain`: seen on the left only as a direct peer of a RIS collector. |
+| IPv4 routes, IPv6 routes | `v4_peers`, `v6_peers` | Routes with this neighbour relationship seen by RIS peers. Despite the names, these count routes, not distinct peers. |
+| AS paths | `power` | AS paths containing the neighbour relationship with that position. |
+
+Position is not a business relationship. Route and path counts are not traffic
+share. Collectors miss sessions whose routes never propagate toward a RIS peer,
+including much private peering.
 
 ## Worked investigation
 
@@ -127,7 +223,7 @@ around an address observed at a perimeter?
 
 ### 1. Start with the observed address
 
-Enter the address as an **IP address** lookup. The report records the submitted
+Enter the address as a **Public routing context** lookup. The report records the submitted
 address separately from the prefix used for BGP evidence. This distinction
 matters: the report does not silently substitute the covering prefix for the
 input address.
@@ -254,6 +350,9 @@ than being replaced with zero.
 | Other origins | Up to 50 prefix/origin groups |
 | Diagram source graph | Up to 80 networks before compact-diagram presentation |
 | Atlas discovery | Up to five discovered measurements per search scope |
+| Footprint file | 1 MB and 5,000 distinct entries; up to 500 rejected rows listed |
+| Footprint resolution | Up to 2,500 RIPEstat lookups per run; up to 100 more-specific announcements resolved per prefix entry |
+| Footprint adjacency | Up to 50 confirmed ASNs, 5,000 neighbours per ASN, and 150 neighbour name lookups; 1,000 neighbour rows on screen (exports keep all) |
 
 The report warns when a relevant bound truncates evidence. Counts can cover more
 accepted records than the detailed browser path list; do not treat a rendered
@@ -269,21 +368,27 @@ Requests are globally serialized and separated by at least two seconds. Each
 network request has up to three attempts. Temporary HTTP failures use bounded
 backoff, and network failures are surfaced as source errors instead of silently
 becoming empty evidence. A large ASN or an IP run that reaches the hop-mapping
-limit can take several minutes.
+limit can take several minutes. A footprint resolution makes at most one request
+per distinct entry and usually far fewer, but a list of thousands of scattered
+addresses can still take over an hour at two seconds per request.
 
 Responses are cached only within one job to avoid duplicate requests during that
 run. A subsequent run reads its sources again, so its retrieval times refer to
 that run rather than to an indefinite server cache.
 
-Finished jobs live in memory for up to one hour. The server retains at most 30
-jobs and may evict an older result first. Restarting the server clears jobs and
+Finished jobs live in memory for one hour after they finish; a running job is
+never evicted. The server retains at most 30 jobs and may evict an older
+finished result first. A footprint resolution must still be held when you read
+adjacency; if it has expired, upload the file again. Restarting the server clears jobs and
 their in-memory caches. Download reports you need to preserve.
 
 ## Privacy and local operation
 
 **A local interface does not make public-data queries private.** When you run a
-lookup, the application sends the normalized IP address or ASN, and any supplied
-measurement IDs, to RIPE services. RIPE can also see the public IP address of
+lookup, the application sends the normalized IP address or ASN, any supplied
+measurement IDs, and in footprint mode every entry in your file and every ASN
+you confirm, to RIPE services. A footprint file describes your external attack
+surface, so treat the run and its exports accordingly. RIPE can also see the public IP address of
 the network making those requests.
 
 The application never contacts the investigated IP address or ASN. It does not
@@ -302,7 +407,7 @@ defined in the server; it does not fetch imported URLs.
 
 The local server checks expected Host and Origin headers, rejects cross-origin
 POSTs, sets a restrictive content-security policy for its HTML response, and
-limits request bodies to 64 KiB. Those controls do not make it appropriate to
+limits request bodies to 64 KiB, or about 1 MiB for a footprint upload. Those controls do not make it appropriate to
 expose on a shared network without a separate security design.
 
 ## Reports and exports
@@ -316,9 +421,17 @@ print/save-PDF flow are derived from the same routing-context report model.
 | HTML report | A standalone report with retained evidence embedded as JSON. It can be opened without the local server. |
 | JSON evidence | The canonical structured result, including sources, timestamps, calculations, warnings, selected graph data, samples, and retained paths. |
 | Print or save PDF | Uses the browser's print dialog to produce a visual report. There is no server-side PDF generator. |
+| Footprint JSON record | The complete point-in-time run: inputs, rejected rows, resolution of every entry, origin ASNs with your confirmation, neighbours per ASN, RIPE field definitions, source times and messages, warnings and request counts. |
+| Adjacency CSV | One row per confirmed ASN and neighbour, with RIPE's position, `power`, `v4_peers` and `v6_peers`, data time and source URL. |
+| Resolution CSV | One row per footprint entry: status, covering prefix, origin ASNs, more-specific announcements and errors. |
 
-CSV export, firewall formats, SIEM delivery, SOAR actions, and automatic
-enforcement are not implemented in this version. The application does not
+**Open a saved run** displays a JSON export from this tool, footprint or
+single-resource, without making any lookups. CSV cells that a spreadsheet would
+run as a formula are prefixed with an apostrophe, because holder names come from
+outside data.
+
+Firewall formats, SIEM delivery, SOAR actions, and automatic enforcement are not
+implemented. The application does not
 recommend blocking an IP, prefix, ASN, or provider.
 
 Treat exports as potentially sensitive investigation material. Before sharing an
@@ -335,6 +448,8 @@ remote multi-user API.
 | --- | --- |
 | `GET /api/health` | Returns the local application version. |
 | `POST /api/analyze` | Starts one passive IP or ASN analysis. |
+| `POST /api/footprint/resolve` | Starts a footprint resolution. Body: `{"csv": "<file text>", "org_keywords": "Example Org", "include_low_visibility": false}`. |
+| `POST /api/footprint/adjacency` | Reads adjacency for confirmed ASNs. Body: `{"resolution_job": "<job id>", "asns": [3333]}`. The ASNs must come from that resolution. |
 | `GET /api/job/<job-id>` | Returns progress, error state, or the completed report. |
 | `POST /api/job/<job-id>/cancel` | Requests cancellation of an in-progress analysis. |
 
@@ -386,17 +501,22 @@ Run the renderer and export check when Node.js is available:
 
 ```sh
 node test_report_rendering.js report_fixtures.json
+node test_footprint_rendering.js footprint_fixtures.json
 ```
 
 Tests use frozen synthetic responses. They cover input validation, public-only
 operation, per-run caching, measurement-definition checks, source failures,
 unknown-versus-empty evidence, cancellation, path handling, other-origin
-reporting, report export, and escaping of untrusted content. The renderer
+reporting, report export, and escaping of untrusted content. Footprint tests
+cover parsing edge cases, safe reuse around more-specific announcements, range
+expansion, lookup limits, low-visibility filtering, multiple origins,
+confirmation checks, aggregation, unknown-versus-empty neighbour data, job
+retention, CSV formula safety and the absence of editorial wording. The renderer
 fixtures contain fabricated values and an intentional injection test string;
 they are not live intelligence or an accuracy benchmark.
 
-The BGP Lookup project was used as a design reference only. Infrastructure
-Explorer is a standalone codebase and does not depend on a local BGP Lookup
+The BGP Lookup project was used as a design reference only. Pathfinder
+is a standalone codebase and does not depend on a local BGP Lookup
 checkout. It includes a local copy of the supplied decorative Coquí artwork in
 the lower-right background; it is not loaded from the reference project at
 runtime.
@@ -405,6 +525,8 @@ runtime.
 
 | Source | Use in this application |
 | --- | --- |
+| [RIPEstat Prefix Overview](https://stat.ripe.net/docs/data-api/api-endpoints/prefix-overview) | Footprint resolution: covering announcement, origin ASNs and holders, related prefixes, visibility filtering. |
+| [RIPEstat ASN Neighbours](https://stat.ripe.net/docs/data-api/api-endpoints/asn-neighbours) | Footprint adjacency: observed BGP neighbours, position, route and path counts. |
 | [RIPEstat Network Info](https://stat.ripe.net/docs/data-api/api-endpoints/network-info) | Current IP-to-prefix and prefix-to-origin context. |
 | [RIPEstat BGP State / RIPE RIS](https://stat.ripe.net/docs/data-api/api-endpoints/bgp-state) | Collector-observed BGP paths and ASN prefix context. |
 | [RIPEstat ASN Overview](https://stat.ripe.net/docs/data-api/api-endpoints/as-overview) | Reported ASN holder names when available. |
