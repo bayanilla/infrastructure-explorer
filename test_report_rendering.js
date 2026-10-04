@@ -4,6 +4,9 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const html = fs.readFileSync(path.join(__dirname, 'probe_web/index.html'), 'utf8');
+assert.match(html, /id="staticMap"/);
+assert.match(html, /Open interactive map/);
+assert.match(html, /id="interactiveMap" hidden/);
 const script = html.split('<script>')[1].split('</script>')[0];
 new vm.Script(script); // Check the complete UI script, including its event handlers.
 const names = ['targetLabel', 'targetContext', 'asEvidenceHTML', 'adjacencyTable',

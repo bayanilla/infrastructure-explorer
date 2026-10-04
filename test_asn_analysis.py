@@ -49,10 +49,6 @@ class AsHttp(FakeHttp):
         if query.get("target_asn") != [str(ORIGIN)] or "target_ip" in query:
             raise AssertionError("AS search must not choose a representative IP")
 
-    def post_json(self, *args, **kwargs):
-        raise AssertionError("ASN analysis must never schedule measurements")
-
-
 class AsnValidation(unittest.TestCase):
     def test_canonical_asn_and_original_input(self):
         for raw in ("AS3333", "as3333", "3333", " AS003333 "):

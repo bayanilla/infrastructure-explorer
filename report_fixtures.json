@@ -945,5 +945,558 @@
         "retrieved_at": "2026-10-03T20:50:20Z"
       }
     ]
+  },
+  {
+    "meta": {
+      "tool": "M\u00facaro infrastructure explorer",
+      "version": "0.3.0",
+      "generated_utc": "2026-10-03T12:00:00Z",
+      "target_input": "193.0.6.139",
+      "target_ip": "193.0.6.139",
+      "origin": {
+        "asn": 3333,
+        "all_asns": [
+          3333
+        ],
+        "prefix": "193.0.0.0/21",
+        "name": "Holder AS3333"
+      },
+      "tier": "public",
+      "data_scope": "target",
+      "target_kind": "ip",
+      "target_resource": "193.0.6.139",
+      "evidence_resource": "193.0.0.0/21",
+      "measurement_ids": [
+        1001
+      ],
+      "requests": 0
+    },
+    "summary": [
+      "3 retained BGP observations end at the selected origin AS3333.",
+      "4 existing Atlas samples retained; 3 contain a hop mapped to AS3333 using current prefix-origin data. This does not establish router ownership or reachability.",
+      "Routing context does not identify the path an observed connection took, confirm a service provider, or support an enforcement recommendation."
+    ],
+    "routing_context": {
+      "adjacencies": [
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "data_paths": 2,
+          "data_share": 0.6667,
+          "cp_routes": 2,
+          "cp_share": 0.6667,
+          "interpretation": "Observed BGP adjacency or adjacency inferred from hop prefix-origin mappings. Neither confirms a provider relationship or a packet path to the perimeter."
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "data_paths": 1,
+          "data_share": 0.3333,
+          "cp_routes": 1,
+          "cp_share": 0.3333,
+          "interpretation": "Observed BGP adjacency or adjacency inferred from hop prefix-origin mappings. Neither confirms a provider relationship or a packet path to the perimeter."
+        }
+      ],
+      "calculations": {
+        "bgp_fraction": {
+          "numerator": "cp_routes",
+          "denominator": 3,
+          "unit": "fraction of retained BGP records with a preceding ASN",
+          "rounding": "4 decimal places"
+        },
+        "mapped_sample_fraction": {
+          "numerator": "data_paths",
+          "denominator": 3,
+          "unit": "fraction of retained samples with an inferred preceding ASN",
+          "rounding": "4 decimal places"
+        }
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "asn": 3333,
+          "name": "Holder AS3333",
+          "roles": [
+            "origin"
+          ],
+          "depth": 0,
+          "data": 3,
+          "cp": 3
+        },
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 2,
+          "cp": 2
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 1,
+          "cp": 1
+        },
+        {
+          "asn": 2914,
+          "name": "Holder AS2914",
+          "roles": [],
+          "depth": 2,
+          "data": 2,
+          "cp": 1
+        },
+        {
+          "asn": 7777,
+          "name": "Holder AS7777",
+          "roles": [],
+          "depth": 2,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 9999,
+          "name": "Holder AS9999",
+          "roles": [
+            "vantage"
+          ],
+          "depth": 3,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 14061,
+          "name": "Holder AS14061",
+          "roles": [
+            "vantage"
+          ],
+          "depth": 3,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 174,
+          "name": "Holder AS174",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "asn": 6939,
+          "name": "Holder AS6939",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": 14061,
+          "to": 2914,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 2914,
+          "to": 1103,
+          "data": 2,
+          "cp": 0
+        },
+        {
+          "from": 1103,
+          "to": 3333,
+          "data": 2,
+          "cp": 2
+        },
+        {
+          "from": 9999,
+          "to": 2914,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 7777,
+          "to": 3356,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 3356,
+          "to": 3333,
+          "data": 1,
+          "cp": 1
+        },
+        {
+          "from": 6939,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 174,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 2914,
+          "to": 3356,
+          "data": 0,
+          "cp": 1
+        }
+      ]
+    },
+    "traces": [
+      {
+        "msm_id": 1001,
+        "probe_id": 1,
+        "probe_asn": 14061,
+        "probe_country": "US",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "10.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": "special-use"
+          },
+          {
+            "hop": 2,
+            "ip": "8.8.4.1",
+            "rtt": 10.0,
+            "asn": 14061,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "9.9.9.1",
+            "rtt": 10.0,
+            "asn": 2914,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "20.0.0.1",
+            "rtt": 10.0,
+            "asn": 1103,
+            "scope": null
+          },
+          {
+            "hop": 5,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          14061,
+          2914,
+          1103,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": true,
+        "entry_asn": 1103,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 2,
+        "probe_asn": 9999,
+        "probe_country": "BR",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.1",
+            "rtt": 10.0,
+            "asn": 9999,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "9.9.9.2",
+            "rtt": 10.0,
+            "asn": 2914,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "20.0.0.2",
+            "rtt": 10.0,
+            "asn": 1103,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          9999,
+          2914,
+          1103,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": true,
+        "entry_asn": 1103,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 3,
+        "probe_asn": null,
+        "probe_country": null,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "40.0.0.1",
+            "rtt": 10.0,
+            "asn": 7777,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "50.0.0.1",
+            "rtt": 10.0,
+            "asn": 3356,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "193.0.6.1",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          7777,
+          3356,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": false,
+        "entry_asn": 3356,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 4,
+        "probe_asn": 9999,
+        "probe_country": "BR",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.9",
+            "rtt": 10.0,
+            "asn": 9999,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": null,
+            "rtt": null,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          9999
+        ],
+        "reached_origin_as": false,
+        "reached_target": false,
+        "entry_asn": null,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      }
+    ],
+    "vantage": [
+      {
+        "asn": 9999,
+        "name": "Holder AS9999",
+        "traces": 2,
+        "reached": 1,
+        "countries": {
+          "BR": 2
+        },
+        "entries": [
+          {
+            "asn": 1103,
+            "traces": 1
+          }
+        ]
+      },
+      {
+        "asn": null,
+        "name": null,
+        "traces": 1,
+        "reached": 1,
+        "countries": {},
+        "entries": [
+          {
+            "asn": 3356,
+            "traces": 1
+          }
+        ]
+      },
+      {
+        "asn": 14061,
+        "name": "Holder AS14061",
+        "traces": 1,
+        "reached": 1,
+        "countries": {
+          "US": 1
+        },
+        "entries": [
+          {
+            "asn": 1103,
+            "traces": 1
+          }
+        ]
+      }
+    ],
+    "control_plane": {
+      "routes": 3,
+      "entry_counts": [
+        {
+          "asn": 1103,
+          "routes": 2
+        },
+        {
+          "asn": 3356,
+          "routes": 1
+        }
+      ],
+      "paths": [
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            6939,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            6939,
+            1103,
+            3333
+          ],
+          "source_id": "00-1"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            174,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            174,
+            1103,
+            1103,
+            3333
+          ],
+          "source_id": "00-2"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            2914,
+            3356,
+            3333
+          ],
+          "raw_path": [
+            2914,
+            3356,
+            3333
+          ],
+          "source_id": "01-1"
+        }
+      ],
+      "truncated": false,
+      "source": {
+        "name": "RIPE RIS via RIPEstat",
+        "url": "https://stat.ripe.net/data/bgp-state/data.json?resource=193.0.0.0%2F21&sourceapp=mucaro-infrastructure-explorer",
+        "query_parameters": {
+          "resource": "193.0.0.0/21"
+        },
+        "status": "available",
+        "observed_at": null,
+        "retrieved_at": "2026-10-03T12:00:00Z",
+        "returned_routes": 5,
+        "reported_routes": null,
+        "observation_time_note": "Source observation time unavailable."
+      },
+      "excluded_records": {
+        "other_origin": 1,
+        "unsupported_path": 1
+      },
+      "other_origins": [
+        {
+          "prefix": "193.0.0.0/21",
+          "asn": 65000,
+          "name": "<script>untrusted</script>",
+          "peers": 1
+        }
+      ],
+      "other_origins_truncated": false,
+      "distinct_peers": 3
+    },
+    "warnings": [
+      "Excluded BGP records: other_origin: 1, unsupported_path: 1.",
+      "BGP records within 193.0.0.0/21 end at other origin ASes: AS65000 for 193.0.0.0/21 (1 peer). Review whether these are expected.",
+      "1 traceroute samples have no hop mapped to AS3333. Missing replies, incomplete mappings, and source-date differences prevent a reachability conclusion."
+    ],
+    "methodology": [
+      "This analysis reads public RIPE data and existing Atlas measurements only. It never schedules a probe.",
+      "Every run re-reads its sources. Retrieval times are when this run fetched the data.",
+      "BGP paths are collector-observed advertisements, not packet paths or complete network architecture.",
+      "Solid graph edges are inferred by mapping Atlas reply addresses to current prefix origins. They are not verified router ownership or AS transitions. Dashed edges are BGP observations.",
+      "An adjacent ASN is context only. Adjacency does not establish a provider, ownership, government association, or physical location.",
+      "Counts and fractions describe the retained sample, not traffic share, maliciousness, confidence, or complete network coverage.",
+      "Current hop mappings are not historical routing evidence. Prefix reuse can miss more-specific routes; multiple origins and unanswered hops add uncertainty.",
+      "Existing Atlas results describe their probe, destination, and time. They do not reconstruct an observed perimeter connection or an attacker's route.",
+      "Records ending at other origins are listed separately. Multiple origins can be legitimate (anycast, mitigation services, provider-originated space) or a misorigination; this tool does not decide which."
+    ],
+    "measurement_evidence": [
+      {
+        "measurement_id": 1001,
+        "target_ip": "193.0.6.139",
+        "target_asn": 3333,
+        "start_time": 1790000000,
+        "scope": "target",
+        "results_returned": 4,
+        "results_retained": 4,
+        "url": "https://atlas.ripe.net/api/v2/measurements/1001/latest/?format=json",
+        "retrieved_at": "2026-10-03T12:00:00Z"
+      }
+    ]
   }
 ]

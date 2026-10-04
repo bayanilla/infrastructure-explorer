@@ -1,7 +1,7 @@
 # Múcaro | Infrastructure Explorer
 
 A local, passive application for exploring an observed IP's public infrastructure
-context. Look up an IP or CIDR, review its origin ASN and routing evidence, then
+context. Look up one IP address, review its origin ASN and routing evidence, then
 optionally explore broader ASN context. Includes seven themes and HTML/JSON exports
 with a browser print/save-PDF flow.
 
