@@ -15,8 +15,11 @@ Python 3.10+, standard library only:
 python3 probe_server.py
 ```
 
-Open <http://127.0.0.1:8767/>. Use a Python runtime with a working trusted CA store;
-never disable certificate verification to fix a source-access error.
+Open <http://127.0.0.1:8767/>. Pathfinder keeps certificate and hostname
+verification enabled and securely falls back to the operating system CA bundle
+if the Python runtime points to a missing CA file. Never disable certificate
+verification to fix a source-access error; repair the local trust configuration
+if neither trust store is available.
 
 ## Lookup workflow
 

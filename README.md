@@ -43,8 +43,10 @@ only to loopback by default. It is not a shared or public service design.
 
 ## Quick start
 
-You need **Python 3.10+**, a modern browser, a working HTTPS certificate trust
-store, and Internet access to RIPE's public services. No Python packages,
+You need **Python 3.10+**, a modern browser, and Internet access to RIPE's
+public services. The application uses Python's normal verified HTTPS setup and,
+when that runtime points to a missing CA file, securely uses the operating
+system CA bundle instead. No Python packages,
 Node.js runtime, API key, database, account, or active-measurement credit is
 needed to use the application. Node.js is needed only for the renderer test.
 
@@ -73,8 +75,10 @@ python3 probe_server.py --port 8768
 Then open [http://127.0.0.1:8768](http://127.0.0.1:8768).
 
 Do not disable certificate verification to work around a RIPE connection error.
-Fix the local certificate trust configuration instead. Disabling verification
-would weaken the evidence-source connection.
+Pathfinder keeps certificate and hostname verification enabled when it falls
+back to the operating system CA bundle. If both the runtime and operating
+system trust stores are unavailable, fix the local trust configuration rather
+than weakening the evidence-source connection.
 
 ### 2. Run a first lookup
 
