@@ -41,4 +41,15 @@ for (const report of fixtures) {
     assert.match(rendered, /inferred mapping:/);
   }
 }
+context.crowded = {
+  meta: {origin: {asn: 64500}, target_kind: 'asn'},
+  graph: {
+    nodes: [{asn: 64500, depth: 0, data: 0, cp: 1, name: 'Selected', roles: ['origin']}]
+      .concat(Array.from({length: 8}, (_, i) => ({asn: 64501 + i, depth: 1, data: 0, cp: 8 - i, name: `Adjacent ${i}`, roles: ['adjacent']}))),
+    edges: Array.from({length: 8}, (_, i) => ({from: 64501 + i, to: 64500, data: 0, cp: 8 - i})),
+  },
+};
+const crowdedSvg = vm.runInContext('chartSVG(crowded)', context);
+assert.match(crowdedSvg, /data-priority="context"/);
+assert.doesNotMatch(crowdedSvg, /AS64508/); // The overview limits low-frequency peers; captured paths remain in the report data.
 console.log('IP and ASN HTML exports preserve canonical evidence, escape names, and contain no action recommendations. UI syntax passed.');
