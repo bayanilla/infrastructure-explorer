@@ -9,7 +9,7 @@ assert.doesNotMatch(html, /id="staticMap"/);
 assert.doesNotMatch(html, /id="interactiveMap"/);
 assert.match(html, /class="coqui-background"/);
 assert.doesNotMatch(html, /class="coqui-mark"/);
-assert.match(html, /href="\/assets\/coqui\.png"/);
+assert.match(html, /href="\/assets\/mucaro-mark\.svg(?:\?[^\"]*)?"/);
 const script = html.split('<script>')[1].split('</script>')[0];
 new vm.Script(script); // Check the complete UI script, including its event handlers.
 const names = ['targetLabel', 'targetContext', 'asEvidenceHTML', 'adjacencyTable',

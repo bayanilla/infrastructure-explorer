@@ -1731,6 +1731,7 @@ def run_footprint_adjacency(job, params, http):
 # --- HTTP server ----------------------------------------------------------------
 INDEX_PATH = Path(__file__).with_name("probe_web") / "index.html"
 COQUI_PATH = Path(__file__).with_name("probe_web") / "assets" / "coqui.png"
+FAVICON_PATH = Path(__file__).with_name("probe_web") / "assets" / "mucaro-mark.svg"
 CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
        "img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
 
@@ -1780,6 +1781,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, COQUI_PATH.read_bytes(), "image/png")
             except OSError:
                 return self._send(500, {"error": "Missing Coquí artwork."})
+        if path == "/assets/mucaro-mark.svg":
+            try:
+                return self._send(200, FAVICON_PATH.read_bytes(), "image/svg+xml")
+            except OSError:
+                return self._send(500, {"error": "Missing Múcaro favicon."})
         if path == "/api/health":
             return self._send(200, {"version": VERSION})
         m = re.fullmatch(r"/api/job/([0-9a-f]{32})", path)
