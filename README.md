@@ -29,8 +29,8 @@ You need Python 3.10+, a modern browser, and Internet access to RIPE's public
 services. No account, API key, database, or active-measurement credit is needed.
 
 ```sh
-git clone https://github.com/bayanilla/infrastructure-explorer.git
-cd infrastructure-explorer
+git clone https://github.com/bayanilla/pathfinder.git
+cd pathfinder
 python3 probe_server.py
 ```
 
@@ -75,8 +75,10 @@ hosting provider rather than to your organization.
 
 1. Select **Public routing context** for an IP, or **Explore ASN** for an ASN.
 2. Enter one valid public target and select the analysis button.
-3. Read the source status, retrieval times, warnings, and limits before drawing
-   conclusions from the visualizations.
+3. Read the source status, source observation times, retrieval times, warnings,
+   and limits before drawing conclusions from the visualizations. A retrieval
+   time says when Pathfinder received a response; it does not replace the time
+   the source observed routing data.
 4. Export the report when you need a record of the investigation.
 
 `AS3333` is a public RIPE NCC example often used in routing demonstrations. An
@@ -88,9 +90,9 @@ routing context.
 1. **Identity context.** Confirm the submitted IP/prefix, the announced prefix,
    selected origin ASN, and reported holder name. A holder name is registration
    context only; it does not prove operator, provider, government, or location.
-2. **Evidence and warnings.** Check sources, their retrieval times, errors,
-   truncation, and missing coverage. A failed lookup, no returned evidence, and
-   an unrequested source are different conditions.
+2. **Evidence and warnings.** Check sources, their observation and retrieval
+   times, errors, truncation, and missing coverage. A failed lookup, no returned
+   evidence, and an unrequested source are different conditions.
 3. **Footprint adjacency.** Each row is a neighbor RIPE's route collectors
    observed beside a confirmed ASN. `left` and `right` describe position in
    displayed BGP advertisements. They are not customer, transit, peering,
@@ -101,6 +103,11 @@ routing context.
    show one hop. The separate **routing map** used in IP/ASN reports is a
    five-column presentation of retained BGP observations and inferred mappings;
    it is not a topology, geographic map, or packet path.
+   Expand a **Per-ASN detail** section in a footprint report to load a separate
+   static BGP-path-context map for that ASN. Its source observation time and
+   retrieval time are shown when RIPE provides them. That map shows
+   collector-observed BGP advertisements only; existing Atlas samples are kept
+   as separate evidence and are not plotted there.
 5. **Report and exports.** Use JSON for the full structured record, CSV for
    footprint resolution or adjacency rows, standalone HTML for a portable report,
    and the browser print dialog for a PDF. **Open a saved run** reloads a JSON
@@ -123,6 +130,19 @@ It does not change the saved data or calculations. The card reports the nearest
 A network in the first visible column is not necessarily adjacent to the selected
 origin. Neither map claims an attack path, packet path, AS relationship, router
 ownership, physical path, or verified operator relationship.
+
+## Use the report with network operations
+
+Treat a Pathfinder report as an outside-in, point-in-time observation for
+validation, not as a finding by itself. Ask the network team to compare the
+reported prefix, origin ASN, and observed adjacency with the organization’s IP
+address-management records, current router state, BGP policy, provider and
+peering records, and recent change history.
+
+For an unfamiliar origin or adjacent ASN, ask whether the public observation
+matches an expected provider, peering, cloud, CDN, or routing change. Do not use
+the report alone to infer traffic flow, ownership, a commercial relationship, or
+an incident.
 
 ## Work safely with the output
 
