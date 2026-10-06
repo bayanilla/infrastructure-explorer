@@ -23,7 +23,19 @@ relationship, physical location, government control, intent, or maliciousness.
 > confirmed ASNs to RIPE's public services. A local interface does not make those
 > public-data queries private. See [privacy and local operation](METHODS.md#privacy-and-local-operation).
 
-## Start here
+## Contents
+
+- [Quick start](#quick-start)
+- [Choose the question you need answered](#choose-the-question-you-need-answered)
+- [Run your first investigation](#run-your-first-investigation)
+- [Worked footprint validation](#worked-footprint-validation)
+- [Read the results in this order](#read-the-results-in-this-order)
+- [Local operation and key limits](#local-operation-and-key-limits)
+- [Use the report with network operations](#use-the-report-with-network-operations)
+- [Work safely with the output](#work-safely-with-the-output)
+- [Further reference](#further-reference)
+
+## Quick start
 
 You need Python 3.10+, a modern browser, and Internet access to RIPE's public
 services. No account, API key, database, or active-measurement credit is needed.
@@ -85,6 +97,25 @@ hosting provider rather than to your organization.
 ASN lookup can still take several minutes because it may contain extensive public
 routing context.
 
+## Worked footprint validation
+
+**Question:** Does the public routing view of our known address space match our
+expected network design?
+
+1. Upload a small, non-sensitive list of known public IPs or prefixes.
+2. Review the announced prefixes, origin ASNs, and reported holders that
+   Pathfinder resolves from public data.
+3. Confirm only the origin ASNs your organization actually operates. A cloud,
+   CDN, or hosting provider may legitimately originate some listed space.
+4. Read the RIPE-observed adjacent-ASN table and record its source time.
+5. Give the report to network operations and ask: “Does this public routing view
+   match our current prefix ownership, provider, peering, and routing design?”
+
+The supported conclusion is limited: at the recorded time, RIPE’s route
+collectors observed the listed ASNs next to the confirmed origin ASNs in public
+BGP advertisements. The report does not prove a packet path, commercial
+relationship, traffic volume, ownership, or incident.
+
 ## Read the results in this order
 
 1. **Identity context.** Confirm the submitted IP/prefix, the announced prefix,
@@ -130,6 +161,19 @@ It does not change the saved data or calculations. The card reports the nearest
 A network in the first visible column is not necessarily adjacent to the selected
 origin. Neither map claims an attack path, packet path, AS relationship, router
 ownership, physical path, or verified operator relationship.
+
+## Local operation and key limits
+
+| Operation | What to expect |
+| --- | --- |
+| Passive operation | Pathfinder reads fixed RIPE public-data endpoints and existing public Atlas results. It does not contact the target or schedule a measurement. |
+| RIPE pacing | The app makes one RIPE request at a time, with at least two seconds between requests. Large footprint or ASN runs can take several minutes. |
+| Query privacy | RIPE receives the normalized resources needed for the selected lookup, along with the public source IP of the machine making the request. |
+| Local retention | Completed runs stay in memory for up to one hour after completion and are cleared when the local server restarts. Download reports you need to keep. |
+| Footprint input | A footprint can contain up to 5,000 distinct public IP or prefix entries. Invalid rows and duplicate counts remain visible in the report. |
+
+See [Methods](METHODS.md) for complete source behavior, request bounds, and
+retention details.
 
 ## Use the report with network operations
 
