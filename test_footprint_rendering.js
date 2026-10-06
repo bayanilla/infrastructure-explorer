@@ -60,11 +60,16 @@ assert.match(report, /<span class="nm">Your confirmed ASN<\/span>/);
 assert.match(report, /Despite the field name, this counts routes, not distinct peers\./);
 assert.equal((report.match(/class="asn-section"/g) || []).length, 2);
 assert.equal((report.match(/class="quiet drill"/g) || []).length, 2);
+assert.match(report, /Select an ASN row to expand/);
+assert.match(report, /class="footprint-mapping"/);
+assert.match(report, /Expand to compare 3 footprint entries with 2 announced prefixes/);
 assert.match(report, /Origin ASNs not treated as yours/);
 assert.match(report, /id="fpAdjCsv"/);
 assert.doesNotMatch(report, forbidden);
 const printable = run('footprintReportHTML(fxRecord)', {fxRecord});
 assert.doesNotMatch(printable, /class="quiet drill"|id="fpJson"/); // Static rendering has no live controls.
+assert.match(html, /summary::before\{content:"▸"/);
+assert.match(html, /details\[open\]>summary::before\{content:"▾"/);
 
 // Per-ASN drill-down maps name their evidence source and retain the distinction
 // between a source observation time and a local retrieval time.
