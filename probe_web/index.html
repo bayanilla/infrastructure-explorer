@@ -753,9 +753,20 @@ async function drillDown(asn, btn){
     layers.data = true; layers.cp = true;
     const svg = chartSVG(r, {static: true});
     Object.assign(layers, saved);
-    box.innerHTML = `<p class="sub">${r.summary.map(esc).join(" ")}</p><div class="chartwrap">${svg}</div>
-      <p class="hint">BGP data time ${esc((r.control_plane.source || {}).observed_at || "not supplied")}. Use Explore ASN for the interactive map and its own exports.</p>`;
+    box.innerHTML = drillMapContextHTML(r) + `<p class="sub">${r.summary.map(esc).join(" ")}</p><div class="chartwrap">${svg}</div>`;
   }, 1500);
+}
+
+function drillMapContextHTML(r){
+  const source = r.control_plane.source || {};
+  const observed = source.observed_at;
+  const retrieved = source.retrieved_at;
+  const provenance = observed
+    ? `Source: ${esc(source.name || "RIPE RIS via RIPEstat")} · BGP observation time: ${esc(observed)}${retrieved ? ` · retrieved by Pathfinder: ${esc(retrieved)}` : ""}.`
+    : `Source: ${esc(source.name || "RIPE RIS via RIPEstat")} · RIPE did not provide a BGP observation time for this response.${retrieved ? ` Pathfinder retrieved it at ${esc(retrieved)}, which is not an observation time.` : ""}`;
+  return `<h4>Observed BGP path context</h4>
+    <p class="sub">This static map is a filtered presentation of collector-observed BGP advertisements ending at AS${esc(r.meta.origin.asn)}. It is not a packet path, physical topology, provider relationship, or traffic-flow diagram. Retained Atlas traceroute samples are separate evidence and are not plotted here.</p>
+    <p class="hint">${provenance} Use Explore ASN for the interactive map and its own exports.</p>`;
 }
 
 /* ---------- Approach chart ---------- */

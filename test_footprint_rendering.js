@@ -66,6 +66,23 @@ assert.doesNotMatch(report, forbidden);
 const printable = run('footprintReportHTML(fxRecord)', {fxRecord});
 assert.doesNotMatch(printable, /class="quiet drill"|id="fpJson"/); // Static rendering has no live controls.
 
+// Per-ASN drill-down maps name their evidence source and retain the distinction
+// between a source observation time and a local retrieval time.
+const drillWithTime = run('drillMapContextHTML(drillEvidence)', {drillEvidence: {
+  meta: {origin: {asn: 3333}},
+  control_plane: {source: {name: "RIPE RIS via RIPEstat", observed_at: "2026-10-05T00:00:00", retrieved_at: "2026-10-05T00:02:00Z"}}
+}});
+assert.match(drillWithTime, /collector-observed BGP advertisements/);
+assert.match(drillWithTime, /not a packet path, physical topology, provider relationship, or traffic-flow diagram/);
+assert.match(drillWithTime, /BGP observation time: 2026-10-05T00:00:00/);
+assert.match(drillWithTime, /Retained Atlas traceroute samples are separate evidence and are not plotted here/);
+const drillWithoutTime = run('drillMapContextHTML(drillEvidence)', {drillEvidence: {
+  meta: {origin: {asn: 3333}},
+  control_plane: {source: {name: "RIPE RIS via RIPEstat", retrieved_at: "2026-10-05T00:02:00Z"}}
+}});
+assert.match(drillWithoutTime, /did not provide a BGP observation time/);
+assert.match(drillWithoutTime, /which is not an observation time/);
+
 // Older exports used the British-spelled report fields. They still reopen and
 // are normalized before rendering or re-exporting.
 const legacy = JSON.parse(JSON.stringify(fxRecord));
