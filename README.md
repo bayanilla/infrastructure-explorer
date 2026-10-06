@@ -2,6 +2,11 @@
 
 **Public routing context for IPs and networks.**
 
+Pathfinder provides a timestamped, outside-in view of how public routing
+collectors see your internet footprint. Network teams can compare that view
+with router configuration, routing policy, provider records, and recent changes
+to validate whether the public presence matches the intended design.
+
 Múcaro | Pathfinder helps an analyst document what public Internet-routing sources
 currently report around an external IP address, network prefix, ASN, or an
 organization's external footprint. It resolves public routing identity, preserves
