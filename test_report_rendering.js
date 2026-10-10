@@ -1,30 +1,24 @@
 // Offline renderer verification against the same fixture reports as the backend.
-const fs = require('node:fs');
-const vm = require('node:vm');
-const assert = require('node:assert/strict');
-const path = require('node:path');
-const html = fs.readFileSync(path.join(__dirname, 'probe_web/index.html'), 'utf8');
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const html = fs.readFileSync(path.join(__dirname, 'web/index.html'), 'utf8') + fs.readFileSync(path.join(__dirname, 'web/styles.css'), 'utf8') + fs.readFileSync(path.join(__dirname, 'web/app.js'), 'utf8');
 assert.match(html, /id="chart"/);
 assert.doesNotMatch(html, /id="staticMap"/);
 assert.doesNotMatch(html, /id="interactiveMap"/);
 assert.match(html, /class="coqui-background"/);
 assert.doesNotMatch(html, /class="coqui-mark"/);
 assert.match(html, /href="\/assets\/mucaro-mark\.svg(?:\?[^\"]*)?"/);
-const script = html.split('<script>')[1].split('</script>')[0];
-new vm.Script(script); // Check the complete UI script, including its event handlers.
-const names = ['targetLabel', 'targetContext', 'asEvidenceHTML', 'adjacencyTable',
-  'evidenceHTML', 'scopeText', 'traceHTML', 'chartSVG', 'reportHTML'];
-const starts = [...script.matchAll(/^function \w+\(/gm)].map(match => match.index);
-const functions = names.map(name => {
-  const start = script.indexOf(`function ${name}(`);
-  assert.ok(start >= 0, name);
-  return script.slice(start, starts.find(index => index > start) ?? script.length);
-});
-const constants = script.split('\n').filter(line =>
-  /^(const esc =|const pct =|const asLabel =|const layers =)/.test(line));
-const context = vm.createContext({});
-vm.runInContext([...constants, ...functions].join('\n'), context);
-const fixtures = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+import * as format from './web/render/format.js';
+import * as lookup from './web/render/lookup.js';
+import * as footprint from './web/render/footprint.js';
+import * as chart from './web/render/chart.js';
+import * as report from './web/render/report.js';
+const context = vm.createContext({...format, ...lookup, ...footprint, ...chart, ...report});
+const fixtures = JSON.parse(fs.readFileSync(process.argv[2] || 'report_fixtures.json', 'utf8'));
 for (const report of fixtures) {
   context.fixture = report;
   const rendered = vm.runInContext('reportHTML(fixture)', context);

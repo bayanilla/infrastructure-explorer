@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Múcaro | Pathfinder — Public routing context for IPs and networks</title>
+<link rel="icon" type="image/svg+xml" href="/assets/mucaro-mark.svg?v=1">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<svg class="coqui-background" viewBox="40 140 420 425" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="coqui-invert" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0"/></filter>
+    <mask id="coqui-mask" maskUnits="userSpaceOnUse" x="40" y="140" width="420" height="425"><image width="570" height="738" href="/assets/coqui.png" filter="url(#coqui-invert)"/></mask>
+  </defs>
+  <rect x="40" y="140" width="420" height="425" fill="currentColor" mask="url(#coqui-mask)"/>
+</svg>
+<header class="masthead">
+  <div>
+    <h1><strong>Múcaro</strong><span class="brand-divider"> | </span><span class="brand-title">Pathfinder</span></h1>
+    <p>Public routing context for IPs and networks.</p>
+  </div>
+  <div class="masthead-tools">
+    <button type="button" id="settingsOpen" aria-haspopup="dialog">Settings</button>
+  </div>
+</header>
+
+<dialog id="settingsDrawer" aria-labelledby="settingsTitle">
+<div class="drawer-header"><h2 id="settingsTitle">Settings</h2><button type="button" id="settingsClose" class="quiet">Close</button></div>
+<h3>Appearance</h3>    <label class="theme-picker" for="theme"><span>Theme</span>
+      <select id="theme" title="Theme is saved only in this browser">
+        <option value="soc">SOC Dark</option>
+        <option value="nord">Nord Calm</option>
+        <option value="contrast">High Contrast</option>
+        <option value="matrix">Matrix</option>
+        <option value="mucaro">Mucaro Dusk</option>
+        <option value="notebook">Field Notebook</option>
+        <option value="amber">Terminal Amber</option>
+      </select>
+    </label>
+<h3>Shodan connection</h3><label for="shodanKey">API key</label><input id="shodanKey" type="password" autocomplete="off" spellcheck="false" maxlength="128">
+<p class="hint">Kept only in this local server's memory until removed or restarted. Shared by tabs using this server. Never saved in reports or browser storage.</p>
+<div class="actions"><button type="button" id="shodanSave">Use for this session</button><button type="button" id="shodanCheck" class="quiet">Check connection</button><button type="button" id="shodanRemove" class="quiet">Remove key</button></div>
+<p id="shodanStatus" role="status">Shodan not configured.</p>
+</dialog>
+<div class="shell">
+<form id="plan" class="plan" novalidate>
+  <h2>Routing lookup</h2>
+  <fieldset>
+    <legend>What are you looking up?</legend>
+    <div class="tier">
+      <label><input type="radio" name="lookup" value="footprint" checked>
+        <span><strong>Your footprint</strong><small>Enter one IP or prefix, or upload a list. See the networks observed next to your origin ASNs.</small></span></label>
+      <label><input type="radio" name="lookup" value="ip">
+        <span><strong>Public routing context</strong><small>Focused public context for an address observed at your perimeter.</small></span></label>
+      <label><input type="radio" name="lookup" value="asn">
+        <span><strong>Explore ASN</strong><small>Optional broader routing context. May take several minutes.</small></span></label>
+    </div>
+  </fieldset>
+  <div id="footprintFields">
+    <div class="field">
+      <label for="fpSingle">One IP or prefix</label>
+      <input id="fpSingle" type="text" autocomplete="off" spellcheck="false" placeholder="203.0.113.10 or 203.0.113.0/24">
+      <p class="hint">Start with one public IP address or CIDR prefix, or leave this empty and choose a file below.</p>
+    </div>
+    <div class="field">
+      <label for="fpFile">Footprint file (optional)</label>
+      <input id="fpFile" type="file" accept=".csv,.txt,text/csv,text/plain">
+      <p class="hint">One IP or prefix per row, as CSV or plain text. Up to 5,000 entries and 1 MB. Choose either a single entry or a file.</p>
+    </div>
+    <div class="field">
+      <label for="fpKeywords">Your organization's holder name (optional)</label>
+      <input id="fpKeywords" type="text" autocomplete="off" spellcheck="false" placeholder="Example Org, EXAMPLE-NET">
+      <p class="hint">Origin ASNs whose RIPE holder name contains one of these are pre-checked as yours. Without it, nothing is pre-checked.</p>
+    </div>
+    <div class="field">
+      <label class="check"><input id="fpLowVis" type="checkbox"> Include low-visibility routes</label>
+      <p class="hint">RIPE normally leaves out routes seen by fewer than 10 RIS peers. Include them to see thinly observed announcements.</p>
+    </div>
+  </div>
+  <div id="singleFields" hidden>
+  <div class="field">
+    <label for="target" id="target-label">IP address</label>
+    <input id="target" type="text" autocomplete="off" spellcheck="false" placeholder="Public IP address" required>
+    <p class="hint" id="target-hint">Start with the externally observed IP. Public data only; no probes are scheduled. RIPE requests are paced, so a run can take several minutes.</p>
+  </div>
+  <div id="publicFields">
+    <div class="field">
+      <label for="msm">Atlas measurement IDs (optional)</label>
+      <input id="msm" type="text" autocomplete="off" placeholder="5001, 12345678">
+      <p class="hint">Leave empty to search for public traceroutes to this address, then to its AS.</p>
+    </div>
+  </div>
+
+  <p class="hint" id="asn-note" hidden>ASN exploration shows observed prefixes, BGP paths and existing Atlas samples. Coverage is incomplete; adjacency does not confirm a provider relationship.</p>
+  <div class="field">
+    <label class="check"><input id="cp" type="checkbox" checked> Include RIS routing observations</label>
+  </div>
+  </div>
+
+  <div class="field" id="shodanFields"><label class="check"><input type="checkbox" id="includeShodan"> Include Shodan observations (optional)</label>
+<p class="hint">Existing service records only, no new scans. Sends supplied IPs or prefixes to Shodan. Up to 20 resources, initially 100 records each. Browse 20 rows per page and explicitly load more prefix results. Prefix searches may use query credits.</p><button type="button" class="linkish" id="configureShodan">Configure Shodan</button></div>
+  <div class="actions">
+    <button id="run" type="submit">Analyze IP</button>
+    <button id="cancel" type="button" class="quiet" hidden>Cancel</button>
+  </div>
+  <p class="hint"><button id="openRun" type="button" class="linkish">Open a saved run</button> to view a JSON export from this tool without new lookups.</p>
+  <input id="openFile" type="file" accept=".json,application/json" hidden>
+
+  <p class="privacy">Routing lookups read existing public RIPE data. Optional Shodan lookups send supplied IPs or prefixes to Shodan and read existing records. Every entry, ASN and measurement ID you look up is sent to RIPE, which also sees your public IP. No host you look up is contacted by this application.</p>
+</form>
+
+<main id="out" aria-live="polite">
+  <section id="empty" class="empty">
+    <h2>Choose a routing lookup.</h2>
+    <p>Start with your footprint, public routing context for one IP, or broader ASN context.</p>
+    <dl>
+      <dt>Identity context</dt><dd>Prefix, origin ASN and reported holder. These do not identify the person behind a connection.</dd>
+      <dt>Routing evidence</dt><dd>Collector-observed BGP advertisements and existing Atlas samples, kept distinct.</dd>
+      <dt>Explore ASN</dt><dd>Optional wider context with explicit sample and coverage limits.</dd>
+    </dl>
+  </section>
+
+  <section id="running" class="status" hidden>
+    <h2>Reading public evidence</h2>
+    <p class="now" id="now">Starting</p>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section id="error" class="error" hidden></section>
+
+  <section id="report" hidden></section>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

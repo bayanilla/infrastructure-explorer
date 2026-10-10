@@ -1,0 +1,1972 @@
+{
+  "ip": {
+    "meta": {
+      "tool": "M\u00facaro | Pathfinder",
+      "target_input": "193.0.6.139",
+      "target_ip": "193.0.6.139",
+      "origin": {
+        "asn": 3333,
+        "all_asns": [
+          3333
+        ],
+        "prefix": "193.0.0.0/21",
+        "name": "Holder AS3333"
+      },
+      "tier": "public",
+      "data_scope": "target",
+      "target_kind": "ip",
+      "target_resource": "193.0.6.139",
+      "evidence_resource": "193.0.0.0/21",
+      "measurement_ids": [
+        1001
+      ],
+      "requests": 0
+    },
+    "summary": [
+      "3 retained BGP observations end at the selected origin AS3333.",
+      "4 existing Atlas samples retained; 3 contain a hop mapped to AS3333 using current prefix-origin data. This does not establish router ownership or reachability.",
+      "Routing context does not identify the path an observed connection took, confirm a service provider, or support an enforcement recommendation."
+    ],
+    "routing_context": {
+      "adjacencies": [
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "data_paths": 2,
+          "data_share": 0.6667,
+          "cp_routes": 2,
+          "cp_share": 0.6667,
+          "interpretation": "Observed BGP adjacency or adjacency inferred from hop prefix-origin mappings. Neither confirms a provider relationship or a packet path to the perimeter."
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "data_paths": 1,
+          "data_share": 0.3333,
+          "cp_routes": 1,
+          "cp_share": 0.3333,
+          "interpretation": "Observed BGP adjacency or adjacency inferred from hop prefix-origin mappings. Neither confirms a provider relationship or a packet path to the perimeter."
+        }
+      ],
+      "calculations": {
+        "bgp_fraction": {
+          "numerator": "cp_routes",
+          "denominator": 3,
+          "unit": "fraction of retained BGP records with a preceding ASN",
+          "rounding": "4 decimal places"
+        },
+        "mapped_sample_fraction": {
+          "numerator": "data_paths",
+          "denominator": 3,
+          "unit": "fraction of retained samples with an inferred preceding ASN",
+          "rounding": "4 decimal places"
+        }
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "asn": 3333,
+          "name": "Holder AS3333",
+          "roles": [
+            "origin"
+          ],
+          "depth": 0,
+          "data": 3,
+          "cp": 3
+        },
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 2,
+          "cp": 2
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 1,
+          "cp": 1
+        },
+        {
+          "asn": 2914,
+          "name": "Holder AS2914",
+          "roles": [],
+          "depth": 2,
+          "data": 2,
+          "cp": 1
+        },
+        {
+          "asn": 7777,
+          "name": "Holder AS7777",
+          "roles": [],
+          "depth": 2,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 9999,
+          "name": "Holder AS9999",
+          "roles": [
+            "vantage"
+          ],
+          "depth": 3,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 14061,
+          "name": "Holder AS14061",
+          "roles": [
+            "vantage"
+          ],
+          "depth": 3,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "asn": 174,
+          "name": "Holder AS174",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "asn": 6939,
+          "name": "Holder AS6939",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": 14061,
+          "to": 2914,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 2914,
+          "to": 1103,
+          "data": 2,
+          "cp": 0
+        },
+        {
+          "from": 1103,
+          "to": 3333,
+          "data": 2,
+          "cp": 2
+        },
+        {
+          "from": 9999,
+          "to": 2914,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 7777,
+          "to": 3356,
+          "data": 1,
+          "cp": 0
+        },
+        {
+          "from": 3356,
+          "to": 3333,
+          "data": 1,
+          "cp": 1
+        },
+        {
+          "from": 6939,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 174,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 2914,
+          "to": 3356,
+          "data": 0,
+          "cp": 1
+        }
+      ]
+    },
+    "traces": [
+      {
+        "msm_id": 1001,
+        "probe_id": 1,
+        "probe_asn": 14061,
+        "probe_country": "US",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "10.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": "special-use"
+          },
+          {
+            "hop": 2,
+            "ip": "8.8.4.1",
+            "rtt": 10.0,
+            "asn": 14061,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "9.9.9.1",
+            "rtt": 10.0,
+            "asn": 2914,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "20.0.0.1",
+            "rtt": 10.0,
+            "asn": 1103,
+            "scope": null
+          },
+          {
+            "hop": 5,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          14061,
+          2914,
+          1103,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": true,
+        "entry_asn": 1103,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 2,
+        "probe_asn": 9999,
+        "probe_country": "BR",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.1",
+            "rtt": 10.0,
+            "asn": 9999,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "9.9.9.2",
+            "rtt": 10.0,
+            "asn": 2914,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "20.0.0.2",
+            "rtt": 10.0,
+            "asn": 1103,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          9999,
+          2914,
+          1103,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": true,
+        "entry_asn": 1103,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 3,
+        "probe_asn": null,
+        "probe_country": null,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "40.0.0.1",
+            "rtt": 10.0,
+            "asn": 7777,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "50.0.0.1",
+            "rtt": 10.0,
+            "asn": 3356,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "193.0.6.1",
+            "rtt": 10.0,
+            "asn": 3333,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          7777,
+          3356,
+          3333
+        ],
+        "reached_origin_as": true,
+        "reached_target": false,
+        "entry_asn": 3356,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 4,
+        "probe_asn": 9999,
+        "probe_country": "BR",
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.9",
+            "rtt": 10.0,
+            "asn": 9999,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": null,
+            "rtt": null,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "as_path": [
+          9999
+        ],
+        "reached_origin_as": false,
+        "reached_target": false,
+        "entry_asn": null,
+        "as_loop": false,
+        "mapping_status": "prefix_origin_inference"
+      }
+    ],
+    "vantage": [
+      {
+        "asn": 9999,
+        "name": "Holder AS9999",
+        "traces": 2,
+        "reached": 1,
+        "countries": {
+          "BR": 2
+        },
+        "entries": [
+          {
+            "asn": 1103,
+            "traces": 1
+          }
+        ]
+      },
+      {
+        "asn": null,
+        "name": null,
+        "traces": 1,
+        "reached": 1,
+        "countries": {},
+        "entries": [
+          {
+            "asn": 3356,
+            "traces": 1
+          }
+        ]
+      },
+      {
+        "asn": 14061,
+        "name": "Holder AS14061",
+        "traces": 1,
+        "reached": 1,
+        "countries": {
+          "US": 1
+        },
+        "entries": [
+          {
+            "asn": 1103,
+            "traces": 1
+          }
+        ]
+      }
+    ],
+    "control_plane": {
+      "routes": 3,
+      "entry_counts": [
+        {
+          "asn": 1103,
+          "routes": 2
+        },
+        {
+          "asn": 3356,
+          "routes": 1
+        }
+      ],
+      "paths": [
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            6939,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            6939,
+            1103,
+            3333
+          ],
+          "source_id": "00-1"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            174,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            174,
+            1103,
+            1103,
+            3333
+          ],
+          "source_id": "00-2"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            2914,
+            3356,
+            3333
+          ],
+          "raw_path": [
+            2914,
+            3356,
+            3333
+          ],
+          "source_id": "01-1"
+        }
+      ],
+      "truncated": false,
+      "source": {
+        "name": "RIPE RIS via RIPEstat",
+        "url": "https://stat.ripe.net/data/bgp-state/data.json?resource=193.0.0.0%2F21&sourceapp=mucaro-pathfinder",
+        "query_parameters": {
+          "resource": "193.0.0.0/21"
+        },
+        "status": "available",
+        "observed_at": null,
+        "returned_routes": 5,
+        "reported_routes": null,
+        "observation_time_note": "Source observation time unavailable."
+      },
+      "excluded_records": {
+        "other_origin": 1,
+        "unsupported_path": 1
+      },
+      "other_origins": [
+        {
+          "prefix": "193.0.0.0/21",
+          "asn": 65000,
+          "name": "Holder AS65000",
+          "peers": 1
+        }
+      ],
+      "other_origins_truncated": false,
+      "distinct_peers": 3
+    },
+    "warnings": [
+      "Excluded BGP records: other_origin: 1, unsupported_path: 1.",
+      "BGP records within 193.0.0.0/21 end at other origin ASes: AS65000 for 193.0.0.0/21 (1 peer). Review whether these are expected.",
+      "1 traceroute samples have no hop mapped to AS3333. Missing replies, incomplete mappings, and source-date differences prevent a reachability conclusion."
+    ],
+    "methodology": [
+      "This analysis reads public RIPE data and existing Atlas measurements only. It never schedules a probe.",
+      "Every run re-reads its sources. Retrieval times are when this run fetched the data.",
+      "BGP paths are collector-observed advertisements, not packet paths or complete network architecture.",
+      "Solid graph edges are inferred by mapping Atlas reply addresses to current prefix origins. They are not verified router ownership or AS transitions. Dashed edges are BGP observations.",
+      "An adjacent ASN is context only. Adjacency does not establish a provider, ownership, government association, or physical location.",
+      "Counts and fractions describe the retained sample, not traffic share, maliciousness, confidence, or complete network coverage.",
+      "Current hop mappings are not historical routing evidence. Prefix reuse can miss more-specific routes; multiple origins and unanswered hops add uncertainty.",
+      "Existing Atlas results describe their probe, destination, and time. They do not reconstruct an observed perimeter connection or an attacker's route.",
+      "Records ending at other origins are listed separately. Multiple origins can be legitimate (anycast, mitigation services, provider-originated space) or a misorigination; this tool does not decide which."
+    ],
+    "measurement_evidence": [
+      {
+        "measurement_id": 1001,
+        "target_ip": "193.0.6.139",
+        "target_asn": 3333,
+        "start_time": 1790000000,
+        "scope": "target",
+        "results_returned": 4,
+        "results_retained": 4,
+        "url": "https://atlas.ripe.net/api/v2/measurements/1001/latest/?format=json"
+      }
+    ]
+  },
+  "asn": {
+    "meta": {
+      "tool": "M\u00facaro | Pathfinder",
+      "target_input": "AS3333",
+      "target_ip": null,
+      "origin": {
+        "asn": 3333,
+        "all_asns": [
+          3333
+        ],
+        "prefix": null,
+        "prefixes": [
+          "193.0.0.0/21"
+        ],
+        "prefix_count": 1,
+        "prefixes_truncated": false,
+        "name": "Holder AS3333"
+      },
+      "tier": "public",
+      "data_scope": "asn_samples",
+      "target_kind": "asn",
+      "target_resource": "AS3333",
+      "target_asn": 3333,
+      "measurement_ids": [
+        1001
+      ],
+      "requests": 0
+    },
+    "summary": [
+      "3 retained BGP observations for 1 prefixes originated by AS3333.",
+      "4 retained existing Atlas traceroute samples to specific addresses; no new measurements were scheduled."
+    ],
+    "routing_context": {
+      "adjacencies": [
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "data_paths": 0,
+          "data_share": null,
+          "cp_routes": 2,
+          "cp_share": 0.6667,
+          "interpretation": "Observed immediately before the selected origin in BGP advertisements. Adjacency alone does not establish a provider relationship."
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "data_paths": 0,
+          "data_share": null,
+          "cp_routes": 1,
+          "cp_share": 0.3333,
+          "interpretation": "Observed immediately before the selected origin in BGP advertisements. Adjacency alone does not establish a provider relationship."
+        }
+      ],
+      "calculations": {
+        "bgp_fraction": {
+          "numerator": "cp_routes",
+          "denominator": 3,
+          "unit": "fraction of retained BGP records with a preceding ASN",
+          "rounding": "4 decimal places"
+        },
+        "mapped_sample_fraction": {
+          "numerator": "data_paths",
+          "denominator": 0,
+          "unit": "fraction of retained samples with an inferred preceding ASN",
+          "rounding": "4 decimal places"
+        }
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "asn": 3333,
+          "name": "Holder AS3333",
+          "roles": [
+            "origin"
+          ],
+          "depth": 0,
+          "data": 0,
+          "cp": 3
+        },
+        {
+          "asn": 1103,
+          "name": "Holder AS1103",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 0,
+          "cp": 2
+        },
+        {
+          "asn": 3356,
+          "name": "Holder AS3356",
+          "roles": [
+            "adjacent"
+          ],
+          "depth": 1,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "asn": 174,
+          "name": "Holder AS174",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "asn": 2914,
+          "name": "Holder AS2914",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "asn": 6939,
+          "name": "Holder AS6939",
+          "roles": [],
+          "depth": 2,
+          "data": 0,
+          "cp": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": 6939,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 1103,
+          "to": 3333,
+          "data": 0,
+          "cp": 2
+        },
+        {
+          "from": 174,
+          "to": 1103,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 2914,
+          "to": 3356,
+          "data": 0,
+          "cp": 1
+        },
+        {
+          "from": 3356,
+          "to": 3333,
+          "data": 0,
+          "cp": 1
+        }
+      ]
+    },
+    "traces": [
+      {
+        "msm_id": 1001,
+        "probe_id": 1,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "10.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "8.8.4.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "9.9.9.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "20.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 5,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": true
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 2,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "9.9.9.2",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "20.0.0.2",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": true
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 3,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "40.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "50.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "193.0.6.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": false
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 4,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.9",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": null,
+            "rtt": null,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": false
+      }
+    ],
+    "vantage": [],
+    "control_plane": {
+      "routes": 3,
+      "entry_counts": [
+        {
+          "asn": 1103,
+          "routes": 2
+        },
+        {
+          "asn": 3356,
+          "routes": 1
+        }
+      ],
+      "paths": [
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            6939,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            6939,
+            1103,
+            3333
+          ],
+          "source_id": "00-1"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            174,
+            1103,
+            3333
+          ],
+          "raw_path": [
+            174,
+            1103,
+            1103,
+            3333
+          ],
+          "source_id": "00-2"
+        },
+        {
+          "prefix": "193.0.0.0/21",
+          "path": [
+            2914,
+            3356,
+            3333
+          ],
+          "raw_path": [
+            2914,
+            3356,
+            3333
+          ],
+          "source_id": "01-1"
+        }
+      ],
+      "truncated": false,
+      "source": {
+        "name": "RIPE RIS via RIPEstat",
+        "url": "https://stat.ripe.net/data/bgp-state/data.json?resource=AS3333&sourceapp=mucaro-pathfinder",
+        "query_parameters": {
+          "resource": "AS3333"
+        },
+        "status": "available",
+        "observed_at": "2026-10-03T12:00:00",
+        "returned_routes": 5,
+        "reported_routes": null
+      },
+      "excluded_records": {
+        "other_origin": 1,
+        "unsupported_path": 1
+      },
+      "other_origins": [],
+      "distinct_peers": 3
+    },
+    "warnings": [
+      "Excluded BGP records: other_origin: 1, unsupported_path: 1."
+    ],
+    "methodology": [
+      "ASN analysis reads public sources only. It does not choose an IP or schedule measurements.",
+      "Every run re-reads its sources. Retrieval times are when this run fetched the data.",
+      "BGP paths are collector-observed advertisements ending at the requested ASN, not packet paths to your perimeter.",
+      "Prefix lists and route counts cover retained source observations, not a complete inventory or traffic share.",
+      "Atlas classifies measurement targets by ASN. That classification can differ from current or historical routing.",
+      "Existing traceroutes are samples to the displayed destination addresses and timestamps. Hop-to-AS mapping is not performed in this overview.",
+      "Adjacency does not establish provider, ownership, government association, or physical location."
+    ],
+    "measurement_evidence": [
+      {
+        "measurement_id": 1001,
+        "target_ip": "193.0.6.139",
+        "target_asn": 3333,
+        "start_time": 1790000000,
+        "scope": "origin_as",
+        "results_returned": 4,
+        "results_retained": 4,
+        "url": "https://atlas.ripe.net/api/v2/measurements/1001/latest/?format=json"
+      }
+    ]
+  },
+  "unrequested": {
+    "meta": {
+      "tool": "M\u00facaro | Pathfinder",
+      "target_input": "AS3333",
+      "target_ip": null,
+      "origin": {
+        "asn": 3333,
+        "all_asns": [
+          3333
+        ],
+        "prefix": null,
+        "prefixes": [],
+        "prefix_count": null,
+        "prefixes_truncated": false,
+        "name": "Holder AS3333"
+      },
+      "tier": "public",
+      "data_scope": "asn_samples",
+      "target_kind": "asn",
+      "target_resource": "AS3333",
+      "target_asn": 3333,
+      "measurement_ids": [
+        1001
+      ],
+      "requests": 0
+    },
+    "summary": [
+      "BGP evidence is not requested; route and prefix counts are unknown.",
+      "4 retained existing Atlas traceroute samples to specific addresses; no new measurements were scheduled."
+    ],
+    "routing_context": {
+      "adjacencies": [],
+      "calculations": {
+        "bgp_fraction": {
+          "numerator": "cp_routes",
+          "denominator": null,
+          "unit": "fraction of retained BGP records with a preceding ASN",
+          "rounding": "4 decimal places"
+        },
+        "mapped_sample_fraction": {
+          "numerator": "data_paths",
+          "denominator": 0,
+          "unit": "fraction of retained samples with an inferred preceding ASN",
+          "rounding": "4 decimal places"
+        }
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "asn": 3333,
+          "name": "Holder AS3333",
+          "roles": [
+            "origin"
+          ],
+          "depth": 0,
+          "data": 0,
+          "cp": 0
+        }
+      ],
+      "edges": []
+    },
+    "traces": [
+      {
+        "msm_id": 1001,
+        "probe_id": 1,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "10.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "8.8.4.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "9.9.9.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "20.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 5,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": true
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 2,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "9.9.9.2",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "20.0.0.2",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 4,
+            "ip": "193.0.6.139",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": true
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 3,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "40.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": "50.0.0.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 3,
+            "ip": "193.0.6.1",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": false
+      },
+      {
+        "msm_id": 1001,
+        "probe_id": 4,
+        "src": "198.51.100.1",
+        "dst": "193.0.6.139",
+        "timestamp": 1790000000,
+        "hops": [
+          {
+            "hop": 1,
+            "ip": "30.0.0.9",
+            "rtt": 10.0,
+            "asn": null,
+            "scope": null
+          },
+          {
+            "hop": 2,
+            "ip": null,
+            "rtt": null,
+            "asn": null,
+            "scope": null
+          }
+        ],
+        "probe_asn": null,
+        "probe_country": null,
+        "as_path": [],
+        "mapping_status": "not_performed",
+        "reached_origin_as": null,
+        "entry_asn": null,
+        "reached_target": false
+      }
+    ],
+    "vantage": [],
+    "control_plane": {
+      "routes": null,
+      "entry_counts": [],
+      "paths": [],
+      "truncated": false,
+      "source": {
+        "name": "RIPE RIS via RIPEstat",
+        "url": "https://stat.ripe.net/data/bgp-state/data.json?resource=AS3333&sourceapp=mucaro-pathfinder",
+        "query_parameters": {
+          "resource": "AS3333"
+        },
+        "status": "not_requested",
+        "observed_at": null
+      },
+      "excluded_records": {},
+      "other_origins": [],
+      "distinct_peers": null
+    },
+    "warnings": [],
+    "methodology": [
+      "ASN analysis reads public sources only. It does not choose an IP or schedule measurements.",
+      "Every run re-reads its sources. Retrieval times are when this run fetched the data.",
+      "BGP paths are collector-observed advertisements ending at the requested ASN, not packet paths to your perimeter.",
+      "Prefix lists and route counts cover retained source observations, not a complete inventory or traffic share.",
+      "Atlas classifies measurement targets by ASN. That classification can differ from current or historical routing.",
+      "Existing traceroutes are samples to the displayed destination addresses and timestamps. Hop-to-AS mapping is not performed in this overview.",
+      "Adjacency does not establish provider, ownership, government association, or physical location."
+    ],
+    "measurement_evidence": [
+      {
+        "measurement_id": 1001,
+        "target_ip": "193.0.6.139",
+        "target_asn": 3333,
+        "start_time": 1790000000,
+        "scope": "origin_as",
+        "results_returned": 4,
+        "results_retained": 4,
+        "url": "https://atlas.ripe.net/api/v2/measurements/1001/latest/?format=json"
+      }
+    ]
+  },
+  "resolution": {
+    "kind": "footprint_resolution",
+    "meta": {
+      "tool": "M\u00facaro | Pathfinder"
+    },
+    "settings": {
+      "org_keywords": [
+        "example"
+      ],
+      "include_low_visibility": false,
+      "visibility_threshold": null,
+      "visibility_threshold_note": "RIPEstat default; the value is taken from RIPE's response messages."
+    },
+    "inputs": {
+      "rows_read": 7,
+      "header": "ip",
+      "accepted": 4,
+      "duplicates": 1,
+      "rejected_total": 1,
+      "rejected": [
+        {
+          "line": 7,
+          "value": "wrong",
+          "reason": "Not an IP address or CIDR prefix."
+        }
+      ],
+      "rejected_truncated": false,
+      "entries": [
+        {
+          "value": "193.0.0.0/21",
+          "kind": "prefix",
+          "note": null,
+          "line": 2
+        },
+        {
+          "value": "193.0.4.4",
+          "kind": "ip",
+          "note": null,
+          "line": 3
+        },
+        {
+          "value": "81.10.1.1",
+          "kind": "ip",
+          "note": null,
+          "line": 4
+        },
+        {
+          "value": "104.16.0.1",
+          "kind": "ip",
+          "note": null,
+          "line": 5
+        }
+      ]
+    },
+    "resolution": [
+      {
+        "input": "193.0.0.0/21",
+        "kind": "prefix",
+        "line": 2,
+        "covering_prefix": "193.0.0.0/21",
+        "origins": [
+          {
+            "asn": 3333,
+            "holder": "EXAMPLE-ORG-NET Example Org Site A"
+          }
+        ],
+        "more_specifics": [
+          {
+            "prefix": "193.0.4.0/24",
+            "covering_prefix": "193.0.4.0/24",
+            "origins": [
+              {
+                "asn": 4200,
+                "holder": "HOSTCO Hosting Provider"
+              }
+            ],
+            "method": "queried"
+          }
+        ],
+        "more_specifics_total": 1,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "193.0.4.4",
+        "kind": "ip",
+        "line": 3,
+        "covering_prefix": "193.0.4.0/24",
+        "origins": [
+          {
+            "asn": 4200,
+            "holder": "HOSTCO Hosting Provider"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "reused",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "81.10.1.1",
+        "kind": "ip",
+        "line": 4,
+        "covering_prefix": "81.10.0.0/20",
+        "origins": [
+          {
+            "asn": 5555,
+            "holder": "EXAMPLE-ORG-EU Example Org Site B"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "104.16.0.1",
+        "kind": "ip",
+        "line": 5,
+        "covering_prefix": "104.16.0.0/20",
+        "origins": [
+          {
+            "asn": 13335,
+            "holder": "CDN Edge"
+          },
+          {
+            "asn": 209242,
+            "holder": "CDN Edge"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      }
+    ],
+    "status_counts": {
+      "announced": 4
+    },
+    "origins": [
+      {
+        "asn": 4200,
+        "holder": "HOSTCO Hosting Provider",
+        "entries": 2,
+        "inputs": [
+          "193.0.0.0/21",
+          "193.0.4.4"
+        ],
+        "prefixes": [
+          "193.0.4.0/24"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.5,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null
+      },
+      {
+        "asn": 3333,
+        "holder": "EXAMPLE-ORG-NET Example Org Site A",
+        "entries": 1,
+        "inputs": [
+          "193.0.0.0/21"
+        ],
+        "prefixes": [
+          "193.0.0.0/21"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": true,
+        "matched_keyword": "example"
+      },
+      {
+        "asn": 5555,
+        "holder": "EXAMPLE-ORG-EU Example Org Site B",
+        "entries": 1,
+        "inputs": [
+          "81.10.1.1"
+        ],
+        "prefixes": [
+          "81.10.0.0/20"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": true,
+        "matched_keyword": "example"
+      },
+      {
+        "asn": 13335,
+        "holder": "CDN Edge",
+        "entries": 1,
+        "inputs": [
+          "104.16.0.1"
+        ],
+        "prefixes": [
+          "104.16.0.0/20"
+        ],
+        "multi_origin_entries": 1,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null
+      },
+      {
+        "asn": 209242,
+        "holder": "CDN Edge",
+        "entries": 1,
+        "inputs": [
+          "104.16.0.1"
+        ],
+        "prefixes": [
+          "104.16.0.0/20"
+        ],
+        "multi_origin_entries": 1,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null
+      }
+    ],
+    "sources": {
+      "prefix_overview": {
+        "name": "RIPEstat prefix-overview",
+        "url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=%7Bentry%7D&sourceapp=mucaro-pathfinder",
+        "lookups": 4,
+        "reused": 1,
+        "query_times": [
+          "2026-10-04T08:00:00"
+        ],
+        "filtered_routes": 0,
+        "messages": []
+      }
+    },
+    "warnings": [
+      "1 entry is covered by a prefix announced by more than one origin ASN. Each origin is listed."
+    ],
+    "requests": 4
+  },
+  "footprint": {
+    "kind": "footprint_run",
+    "meta": {
+      "tool": "M\u00facaro | Pathfinder"
+    },
+    "settings": {
+      "org_keywords": [
+        "example"
+      ],
+      "include_low_visibility": false,
+      "visibility_threshold": null,
+      "visibility_threshold_note": "RIPEstat default; the value is taken from RIPE's response messages."
+    },
+    "inputs": {
+      "rows_read": 7,
+      "header": "ip",
+      "accepted": 4,
+      "duplicates": 1,
+      "rejected_total": 1,
+      "rejected": [
+        {
+          "line": 7,
+          "value": "wrong",
+          "reason": "Not an IP address or CIDR prefix."
+        }
+      ],
+      "rejected_truncated": false,
+      "entries": [
+        {
+          "value": "193.0.0.0/21",
+          "kind": "prefix",
+          "note": null,
+          "line": 2
+        },
+        {
+          "value": "193.0.4.4",
+          "kind": "ip",
+          "note": null,
+          "line": 3
+        },
+        {
+          "value": "81.10.1.1",
+          "kind": "ip",
+          "note": null,
+          "line": 4
+        },
+        {
+          "value": "104.16.0.1",
+          "kind": "ip",
+          "note": null,
+          "line": 5
+        }
+      ]
+    },
+    "resolution": [
+      {
+        "input": "193.0.0.0/21",
+        "kind": "prefix",
+        "line": 2,
+        "covering_prefix": "193.0.0.0/21",
+        "origins": [
+          {
+            "asn": 3333,
+            "holder": "EXAMPLE-ORG-NET Example Org Site A"
+          }
+        ],
+        "more_specifics": [
+          {
+            "prefix": "193.0.4.0/24",
+            "covering_prefix": "193.0.4.0/24",
+            "origins": [
+              {
+                "asn": 4200,
+                "holder": "HOSTCO Hosting Provider"
+              }
+            ],
+            "method": "queried"
+          }
+        ],
+        "more_specifics_total": 1,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "193.0.4.4",
+        "kind": "ip",
+        "line": 3,
+        "covering_prefix": "193.0.4.0/24",
+        "origins": [
+          {
+            "asn": 4200,
+            "holder": "HOSTCO Hosting Provider"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "reused",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "81.10.1.1",
+        "kind": "ip",
+        "line": 4,
+        "covering_prefix": "81.10.0.0/20",
+        "origins": [
+          {
+            "asn": 5555,
+            "holder": "EXAMPLE-ORG-EU Example Org Site B"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      },
+      {
+        "input": "104.16.0.1",
+        "kind": "ip",
+        "line": 5,
+        "covering_prefix": "104.16.0.0/20",
+        "origins": [
+          {
+            "asn": 13335,
+            "holder": "CDN Edge"
+          },
+          {
+            "asn": 209242,
+            "holder": "CDN Edge"
+          }
+        ],
+        "more_specifics": [],
+        "more_specifics_total": 0,
+        "more_specifics_truncated": false,
+        "method": "queried",
+        "filtered_routes": 0,
+        "error": null,
+        "status": "announced"
+      }
+    ],
+    "status_counts": {
+      "announced": 4
+    },
+    "origins": [
+      {
+        "asn": 4200,
+        "holder": "HOSTCO Hosting Provider",
+        "entries": 2,
+        "inputs": [
+          "193.0.0.0/21",
+          "193.0.4.4"
+        ],
+        "prefixes": [
+          "193.0.4.0/24"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.5,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null,
+        "confirmed": false
+      },
+      {
+        "asn": 3333,
+        "holder": "EXAMPLE-ORG-NET Example Org Site A",
+        "entries": 1,
+        "inputs": [
+          "193.0.0.0/21"
+        ],
+        "prefixes": [
+          "193.0.0.0/21"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": true,
+        "matched_keyword": "example",
+        "confirmed": true
+      },
+      {
+        "asn": 5555,
+        "holder": "EXAMPLE-ORG-EU Example Org Site B",
+        "entries": 1,
+        "inputs": [
+          "81.10.1.1"
+        ],
+        "prefixes": [
+          "81.10.0.0/20"
+        ],
+        "multi_origin_entries": 0,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": true,
+        "matched_keyword": "example",
+        "confirmed": true
+      },
+      {
+        "asn": 13335,
+        "holder": "CDN Edge",
+        "entries": 1,
+        "inputs": [
+          "104.16.0.1"
+        ],
+        "prefixes": [
+          "104.16.0.0/20"
+        ],
+        "multi_origin_entries": 1,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null,
+        "confirmed": false
+      },
+      {
+        "asn": 209242,
+        "holder": "CDN Edge",
+        "entries": 1,
+        "inputs": [
+          "104.16.0.1"
+        ],
+        "prefixes": [
+          "104.16.0.0/20"
+        ],
+        "multi_origin_entries": 1,
+        "share": 0.25,
+        "inputs_truncated": false,
+        "default_selected": false,
+        "matched_keyword": null,
+        "confirmed": false
+      }
+    ],
+    "confirmed_asns": [
+      3333,
+      5555
+    ],
+    "adjacency": {
+      "per_asn": [
+        {
+          "asn": 3333,
+          "holder": "EXAMPLE-ORG-NET Example Org Site A",
+          "source": {
+            "name": "RIPEstat ASN Neighbors",
+            "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS3333&sourceapp=mucaro-pathfinder",
+            "status": "available",
+            "query_starttime": "2026-10-04T00:00:00",
+            "query_endtime": "2026-10-04T00:00:00",
+            "latest_time": "2026-10-04T00:00:00",
+            "messages": [
+              "Query time has been set to the latest available time"
+            ],
+            "neighbor_counts": {
+              "left": 1,
+              "right": 0,
+              "unique": 1,
+              "uncertain": 0
+            },
+            "excluded": 0,
+            "truncated": false
+          },
+          "neighbors": [
+            {
+              "asn": 174,
+              "type": "left",
+              "power": 40,
+              "v4_peers": 300,
+              "v6_peers": 0
+            },
+            {
+              "asn": 1299,
+              "type": "left",
+              "power": 120,
+              "v4_peers": 900,
+              "v6_peers": 0
+            },
+            {
+              "asn": 5555,
+              "type": "right",
+              "power": 5,
+              "v4_peers": 12,
+              "v6_peers": 0
+            }
+          ]
+        },
+        {
+          "asn": 5555,
+          "holder": "EXAMPLE-ORG-EU Example Org Site B",
+          "source": {
+            "name": "RIPEstat ASN Neighbors",
+            "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS5555&sourceapp=mucaro-pathfinder",
+            "status": "available",
+            "query_starttime": "2026-10-04T00:00:00",
+            "query_endtime": "2026-10-04T00:00:00",
+            "latest_time": "2026-10-04T00:00:00",
+            "messages": [
+              "Query time has been set to the latest available time"
+            ],
+            "neighbor_counts": {
+              "left": 1,
+              "right": 0,
+              "unique": 1,
+              "uncertain": 0
+            },
+            "excluded": 1,
+            "truncated": false
+          },
+          "neighbors": [
+            {
+              "asn": 1299,
+              "type": "left",
+              "power": 80,
+              "v4_peers": 500,
+              "v6_peers": 20
+            },
+            {
+              "asn": 64999,
+              "type": "uncertain",
+              "power": 1,
+              "v4_peers": 1,
+              "v6_peers": 0
+            }
+          ]
+        }
+      ],
+      "neighbors": [
+        {
+          "asn": 1299,
+          "name": "Holder AS1299",
+          "relations": [
+            {
+              "your_asn": 3333,
+              "type": "left",
+              "power": 120,
+              "v4_peers": 900,
+              "v6_peers": 0
+            },
+            {
+              "your_asn": 5555,
+              "type": "left",
+              "power": 80,
+              "v4_peers": 500,
+              "v6_peers": 20
+            }
+          ],
+          "is_confirmed_asn": false,
+          "your_asn_count": 2,
+          "positions": [
+            "left"
+          ],
+          "max_power": 120,
+          "max_v4_peers": 900,
+          "max_v6_peers": 20
+        },
+        {
+          "asn": 174,
+          "name": "Holder AS174",
+          "relations": [
+            {
+              "your_asn": 3333,
+              "type": "left",
+              "power": 40,
+              "v4_peers": 300,
+              "v6_peers": 0
+            }
+          ],
+          "is_confirmed_asn": false,
+          "your_asn_count": 1,
+          "positions": [
+            "left"
+          ],
+          "max_power": 40,
+          "max_v4_peers": 300,
+          "max_v6_peers": 0
+        },
+        {
+          "asn": 5555,
+          "name": "EXAMPLE-ORG-EU Example Org Site B",
+          "relations": [
+            {
+              "your_asn": 3333,
+              "type": "right",
+              "power": 5,
+              "v4_peers": 12,
+              "v6_peers": 0
+            }
+          ],
+          "is_confirmed_asn": true,
+          "your_asn_count": 1,
+          "positions": [
+            "right"
+          ],
+          "max_power": 5,
+          "max_v4_peers": 12,
+          "max_v6_peers": 0
+        },
+        {
+          "asn": 64999,
+          "name": null,
+          "relations": [
+            {
+              "your_asn": 5555,
+              "type": "uncertain",
+              "power": 1,
+              "v4_peers": 1,
+              "v6_peers": 0
+            }
+          ],
+          "is_confirmed_asn": false,
+          "your_asn_count": 1,
+          "positions": [
+            "uncertain"
+          ],
+          "max_power": 1,
+          "max_v4_peers": 1,
+          "max_v6_peers": 0
+        }
+      ],
+      "field_definitions": {
+        "position": "RIPEstat ASN Neighbors 'type' field. left: the neighbor appears before your ASN in observed AS paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the left only as a direct peer of a RIS route collector.",
+        "power": "RIPEstat 'power': the number of AS paths containing this neighbor relationship with the stated position.",
+        "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbor relationship seen by RIS peers. Despite the field name, this counts routes, not distinct peers.",
+        "v6_peers": "RIPEstat 'v6_peers': the same count for IPv6 routes."
+      }
+    },
+    "sources": {
+      "prefix_overview": {
+        "name": "RIPEstat prefix-overview",
+        "url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=%7Bentry%7D&sourceapp=mucaro-pathfinder",
+        "lookups": 4,
+        "reused": 1,
+        "query_times": [
+          "2026-10-04T08:00:00"
+        ],
+        "filtered_routes": 0,
+        "messages": []
+      },
+      "asn_neighbors": {
+        "name": "RIPEstat ASN Neighbors",
+        "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS%7Basn%7D&sourceapp=mucaro-pathfinder",
+        "query_times": [
+          "2026-10-04T00:00:00"
+        ]
+      }
+    },
+    "summary": [
+      "4 footprint entries map to 5 origin ASNs; 2 confirmed as yours.",
+      "RIS observes 4 distinct networks adjacent to the confirmed ASNs (RIPEstat ASN Neighbors, 2026-10-04T00:00:00).",
+      "1 of them is adjacent to more than one confirmed ASN.",
+      "Adjacency is observed BGP position. It does not establish a business relationship, traffic share, ownership or intent."
+    ],
+    "warnings": [
+      "1 entry is covered by a prefix announced by more than one origin ASN. Each origin is listed.",
+      "1 malformed neighbor record(s) for AS5555 were excluded."
+    ],
+    "methodology": [
+      "Pathfinder reads public RIPE data only. It does not contact any host in the footprint or schedule measurements.",
+      "Each entry is resolved with RIPEstat prefix-overview to the announced prefix covering it and that prefix's origin ASN(s). A prefix entry that contains more-specific announcements is mapped to their origins as well.",
+      "A resolved covering prefix is reused for later entries only when it was read directly, its list of more-specific announcements is complete, and the entry falls outside all of them.",
+      "RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold unless low-visibility routes are included. The threshold and the number of filtered routes are recorded with the run.",
+      "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed are queried for neighbors; the rest stay in the record.",
+      "Adjacency comes from RIPEstat ASN Neighbors: BGP neighbors of each confirmed ASN as observed by RIS. Position, path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic share, ownership or intent.",
+      "Route collectors do not see every session. Private peering and sessions whose routes are not propagated toward RIS peers can be missing.",
+      "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbors belong to the provider.",
+      "This record is a point-in-time snapshot. Source times are recorded per lookup."
+    ],
+    "requests": {
+      "resolution": 4,
+      "adjacency": 4
+    }
+  }
+}

@@ -1,40 +1,28 @@
 // Offline checks for the footprint views: escaping, CSV safety, sorting, layout limits and wording.
 // Runs the complete page script against a stub DOM, so the functions tested are exactly what ships.
 //   node test_footprint_rendering.js footprint_fixtures.json
-const fs = require('node:fs');
-const vm = require('node:vm');
-const path = require('node:path');
-const assert = require('node:assert/strict');
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import assert from 'node:assert/strict';
 
-const html = fs.readFileSync(path.join(__dirname, 'probe_web/index.html'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, 'web/index.html'), 'utf8') + fs.readFileSync(path.join(__dirname, 'web/styles.css'), 'utf8') + fs.readFileSync(path.join(__dirname, 'web/app.js'), 'utf8');
 for (const id of ['fpSingle', 'fpFile', 'fpKeywords', 'fpLowVis', 'footprintFields', 'singleFields', 'openRun', 'openFile']) {
   assert.match(html, new RegExp(`id="${id}"`), id);
 }
 assert.match(html, /name="lookup" value="footprint" checked/); // Footprint is the primary mode.
 assert.match(html, /Enter one IP or prefix, or upload a list/);
 assert.match(html, /Public routing context/);
-const script = html.split('<script>')[1].split('</script>')[0];
-
-const stub = () => new Proxy(function () {}, {
-  get(_, key) {
-    if (key === 'value' || key === 'textContent' || key === 'innerHTML') return '';
-    if (key === 'files') return [];
-    if (key === 'dataset') return {};
-    if (key === 'classList') return {add() {}, remove() {}, toggle() {}};
-    if (key === Symbol.toPrimitive) return () => '';
-    return stub();
-  },
-  set() { return true; },
-  apply() { return stub(); },
-});
-const document = {querySelector: () => stub(), querySelectorAll: () => [], documentElement: {dataset: {}},
-                  getElementById: () => stub(), createElement: () => stub(), body: stub()};
-const context = vm.createContext({document, localStorage: {getItem: () => null, setItem() {}}, console,
-                                  setTimeout, clearTimeout, setInterval, clearInterval, URL, Blob: function () {}});
-vm.runInContext(script, context);
+import * as format from './web/render/format.js';
+import * as lookup from './web/render/lookup.js';
+import * as footprint from './web/render/footprint.js';
+import * as chart from './web/render/chart.js';
+import * as reportModule from './web/render/report.js';
+const context = vm.createContext({...format, ...lookup, ...footprint, ...chart, ...reportModule});
 const run = (code, vars = {}) => { Object.assign(context, vars); return vm.runInContext(code, context); };
-
-const {resolution: fxResolution, run: fxRecord} = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const {resolution: fxResolution, run: fxRecord} = JSON.parse(fs.readFileSync(process.argv[2] || 'footprint_fixtures.json', 'utf8'));
 const forbidden = /suspicious|risky|unexpected|should block|malicious|threat/i;
 
 // Confirmation screen
@@ -60,13 +48,22 @@ assert.match(report, /<span class="nm">Your confirmed ASN<\/span>/);
 assert.match(report, /Despite the field name, this counts routes, not distinct peers\./);
 assert.equal((report.match(/class="asn-section"/g) || []).length, 2);
 assert.equal((report.match(/class="quiet drill"/g) || []).length, 2);
-assert.match(report, /Select an ASN row to expand/);
+assert.match(report, /Select an ASN row below to expand/);
+assert.ok(report.indexOf('id="footprintPathMap"') < report.indexOf('class="asn-section"'));
+assert.match(report, /class="quiet drill" aria-pressed="false"/);
+assert.doesNotMatch(run('perAsnHTML(fxRecord, true)', {fxRecord}), /class="quiet drill"|drillbox/);
 assert.match(report, /class="footprint-mapping"/);
 assert.match(report, /Expand to compare 3 footprint entries with 2 announced prefixes/);
 assert.match(report, /Origin ASNs not treated as yours/);
 assert.match(report, /id="fpAdjCsv"/);
 assert.doesNotMatch(report, forbidden);
 const printable = run('footprintReportHTML(fxRecord)', {fxRecord});
+for (const output of [report, printable]) {
+  assert.match(output, /right is toward the network originating the advertised route/);
+  assert.match(output, /A right-side neighbor is not necessarily that origin/);
+  assert.match(output, /Question for network operations:/);
+  assert.match(output, /Do we expect routes originating from that ASN to be advertised through our ASN/);
+}
 assert.doesNotMatch(printable, /class="quiet drill"|id="fpJson"/); // Static rendering has no live controls.
 assert.match(html, /summary::before\{content:"▸"/);
 assert.match(html, /details\[open\]>summary::before\{content:"▾"/);
@@ -87,20 +84,13 @@ const drillWithoutTime = run('drillMapContextHTML(drillEvidence)', {drillEvidenc
 }});
 assert.match(drillWithoutTime, /did not provide a BGP observation time/);
 assert.match(drillWithoutTime, /which is not an observation time/);
+const interactiveContext = run('drillMapContextHTML(drillEvidence, {interactive: true, heading: false})', {drillEvidence: {
+  meta: {origin: {asn: 3333}}, control_plane: {source: {}}
+}});
+assert.match(interactiveContext, /This interactive map/);
+assert.doesNotMatch(interactiveContext, /<h4>|This static map/);
+assert.match(interactiveContext, /Select a network to inspect/);
 
-// Older exports used the British-spelled report fields. They still reopen and
-// are normalized before rendering or re-exporting.
-const legacy = JSON.parse(JSON.stringify(fxRecord));
-legacy.adjacency.neighbours = legacy.adjacency.neighbors; delete legacy.adjacency.neighbors;
-for (const item of legacy.adjacency.per_asn) {
-  item.neighbours = item.neighbors; delete item.neighbors;
-  item.source.neighbour_counts = item.source.neighbor_counts; delete item.source.neighbor_counts;
-}
-legacy.sources.asn_neighbours = legacy.sources.asn_neighbors; delete legacy.sources.asn_neighbors;
-const normalized = run('normalizeFootprintRecord(legacy)', {legacy});
-assert.ok(Array.isArray(normalized.adjacency.neighbors));
-assert.ok(normalized.adjacency.per_asn.every(p => Array.isArray(p.neighbors)));
-assert.ok(normalized.sources.asn_neighbors);
 
 // The combined view stops at 5 ASNs or 40 neighbors.
 const crowded = JSON.parse(JSON.stringify(fxRecord));

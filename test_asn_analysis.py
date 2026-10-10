@@ -1,12 +1,13 @@
 """ASN public-data regression coverage. Every external response is a fixture."""
+
 import copy
 import json
 import unittest
 import urllib.parse
 from unittest.mock import patch
 
-import probe_server as ps
-from test_probe_analysis import FakeHttp, ORIGIN, RAW
+import test_support as ps
+from test_probe_analysis import ORIGIN, RAW, FakeHttp
 
 
 class AsHttp(FakeHttp):
@@ -31,8 +32,13 @@ class AsHttp(FakeHttp):
             if self.no_routes:
                 data["data"]["bgp_state"] = []
             return data
-        definition = {"id": 1001, "type": "traceroute", "target_asn": self.measurement_asn,
-                      "target_ip": "193.0.6.139", "start_time": 1790000000}
+        definition = {
+            "id": 1001,
+            "type": "traceroute",
+            "target_asn": self.measurement_asn,
+            "target_ip": "193.0.6.139",
+            "start_time": 1790000000,
+        }
         if path.endswith("/measurements/"):
             if self.atlas_failure:
                 raise ps.ApiError(503, "fixture Atlas unavailable", url)
@@ -49,6 +55,7 @@ class AsHttp(FakeHttp):
         if query.get("target_asn") != [str(ORIGIN)] or "target_ip" in query:
             raise AssertionError("AS search must not choose a representative IP")
 
+
 class AsnValidation(unittest.TestCase):
     def test_canonical_asn_and_original_input(self):
         for raw in ("AS3333", "as3333", "3333", " AS003333 "):
@@ -60,7 +67,18 @@ class AsnValidation(unittest.TestCase):
             self.assertIsNone(params["af"])
 
     def test_reserved_and_malformed_targets(self):
-        for raw in ("AS0", "AS23456", "AS64512", "AS4294967295", "AS4294967296", "AS-3333", "AS٣٣٣٣", "AS3333 AS174", None, True):
+        for raw in (
+            "AS0",
+            "AS23456",
+            "AS64512",
+            "AS4294967295",
+            "AS4294967296",
+            "AS-3333",
+            "AS٣٣٣٣",
+            "AS3333 AS174",
+            None,
+            True,
+        ):
             with self.subTest(raw=raw), self.assertRaises(ps.UserError):
                 ps.validate_request({"target": raw})
 
@@ -78,7 +96,11 @@ class AsnRoutes(unittest.TestCase):
         rows = [
             {"path": [174, ORIGIN, ORIGIN], "target_prefix": "193.0.0.0/21", "source_id": "00-192.0.2.1"},
             {"path": [174, ORIGIN, 1103], "target_prefix": "193.0.0.0/21", "source_id": "00-192.0.2.2"},
-            {"path": [174, [1103, 3356], ORIGIN], "target_prefix": "193.0.0.0/21", "source_id": "00-192.0.2.3"},
+            {
+                "path": [174, [1103, 3356], ORIGIN],
+                "target_prefix": "193.0.0.0/21",
+                "source_id": "00-192.0.2.3",
+            },
             {"path": [174, 1103, 174, ORIGIN], "target_prefix": "193.0.0.0/21", "source_id": "00-192.0.2.4"},
             {"path": [1103, ORIGIN], "target_prefix": "2001:db8::/32", "source_id": "01-2001:db8::1"},
             {"path": [True, ORIGIN], "target_prefix": "193.0.0.0/21", "source_id": "00-192.0.2.5"},
@@ -88,11 +110,15 @@ class AsnRoutes(unittest.TestCase):
         self.assertEqual(selected[0]["path"], [174, ORIGIN])
         self.assertEqual(selected[0]["raw_path"], [174, ORIGIN, ORIGIN])
         self.assertEqual(exclusions, {"other_origin": 1, "unsupported_path": 2, "loop": 1, "duplicate": 1})
-        self.assertEqual(ps.select_as_routes(list(reversed(rows + [rows[0]])), ORIGIN), (selected, exclusions))
+        self.assertEqual(
+            ps.select_as_routes(list(reversed(rows + [rows[0]])), ORIGIN), (selected, exclusions)
+        )
 
     def test_invalid_prefix_and_missing_observer(self):
-        rows = [{"path": [174, ORIGIN], "target_prefix": "193.0.0.1/21", "source_id": "peer"},
-                {"path": [174, ORIGIN], "target_prefix": "193.0.0.0/21"}]
+        rows = [
+            {"path": [174, ORIGIN], "target_prefix": "193.0.0.1/21", "source_id": "peer"},
+            {"path": [174, ORIGIN], "target_prefix": "193.0.0.0/21"},
+        ]
         self.assertEqual(ps.select_as_routes(rows, ORIGIN), ([], {"invalid": 2}))
 
 
@@ -160,11 +186,11 @@ class AsnEndToEnd(unittest.TestCase):
         self.assertEqual(result["control_plane"]["source"]["status"], "not_requested")
         self.assertIsNone(result["meta"]["origin"]["prefix_count"])
         self.assertFalse(any("bgp-state" in u for u in http.urls))
-        with patch.object(ps, "MAX_AS_ROUTES", 1):
+        with patch.object(ps.config, "MAX_AS_ROUTES", 1):
             result, _ = self.run_asn()
         self.assertEqual(result["control_plane"]["source"]["status"], "partial")
         self.assertEqual(result["control_plane"]["routes"], 1)
-        with patch.object(ps, "MAX_CP_PATHS_KEPT", 1):
+        with patch.object(ps.config, "MAX_CP_PATHS_KEPT", 1):
             result, _ = self.run_asn()
         self.assertEqual(len(result["control_plane"]["paths"]), 1)
         self.assertTrue(any("first 1 of 3 processed BGP" in w for w in result["warnings"]))

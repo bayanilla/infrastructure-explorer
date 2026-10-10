@@ -1,7 +1,8 @@
 """Offline tests for probe_server. No network access: RIPE responses are canned.
 
-    python3 -m unittest test_probe_analysis -v
+python3 -m unittest test_probe_analysis -v
 """
+
 import copy
 import io
 import json
@@ -11,11 +12,11 @@ import unittest
 import urllib.parse
 from unittest.mock import patch
 
-import probe_server as ps
+import test_support as ps
 
 ORIGIN = 3333
-UP_A, UP_B = 1103, 3356          # adjacent networks
-MID = 2914                       # mid-path network
+UP_A, UP_B = 1103, 3356  # adjacent networks
+MID = 2914  # mid-path network
 SRC_HOSTING, SRC_OTHER = 14061, 9999  # vantage networks
 
 
@@ -24,17 +25,33 @@ def hop(n, ip, rtt=10.0):
 
 
 def trace(prb, hops, dst="193.0.6.139", msm=1001, ts=1790000000):
-    return {"type": "traceroute", "msm_id": msm, "prb_id": prb, "from": "198.51.100.1",
-            "dst_addr": dst, "timestamp": ts, "result": hops}
+    return {
+        "type": "traceroute",
+        "msm_id": msm,
+        "prb_id": prb,
+        "from": "198.51.100.1",
+        "dst_addr": dst,
+        "timestamp": ts,
+        "result": hops,
+    }
 
 
 def definition(mid, target_ip, target_asn=ORIGIN, kind="traceroute"):
-    return {"id": mid, "type": kind, "target_ip": target_ip, "target_asn": target_asn, "start_time": 1790000000}
+    return {
+        "id": mid,
+        "type": kind,
+        "target_ip": target_ip,
+        "target_asn": target_asn,
+        "start_time": 1790000000,
+    }
 
 
 RAW = [
     # probe 1 in SRC_HOSTING: private hop, then hosting, mid-path, adjacent A, origin
-    trace(1, [hop(1, "10.0.0.1"), hop(2, "8.8.4.1"), hop(3, "9.9.9.1"), hop(4, "20.0.0.1"), hop(5, "193.0.6.139")]),
+    trace(
+        1,
+        [hop(1, "10.0.0.1"), hop(2, "8.8.4.1"), hop(3, "9.9.9.1"), hop(4, "20.0.0.1"), hop(5, "193.0.6.139")],
+    ),
     # probe 2 in SRC_OTHER: via adjacent A
     trace(2, [hop(1, "30.0.0.1"), hop(2, "9.9.9.2"), hop(3, "20.0.0.2"), hop(4, "193.0.6.139")]),
     # probe 3 (no metadata): via adjacent B
@@ -43,8 +60,13 @@ RAW = [
     trace(4, [hop(1, "30.0.0.9"), {"hop": 2, "result": [{"x": "*"}, {"x": "*"}]}]),
 ]
 IP_ASN = {
-    "8.8.4.0/24": SRC_HOSTING, "9.9.9.0/24": MID, "20.0.0.0/24": UP_A, "30.0.0.0/24": SRC_OTHER,
-    "40.0.0.0/24": 7777, "50.0.0.0/24": UP_B, "193.0.0.0/21": ORIGIN,
+    "8.8.4.0/24": SRC_HOSTING,
+    "9.9.9.0/24": MID,
+    "20.0.0.0/24": UP_A,
+    "30.0.0.0/24": SRC_OTHER,
+    "40.0.0.0/24": 7777,
+    "50.0.0.0/24": UP_B,
+    "193.0.0.0/21": ORIGIN,
 }
 BGP_ROWS = [
     {"target_prefix": "193.0.0.0/21", "source_id": "00-1", "path": [6939, UP_A, ORIGIN]},
@@ -65,11 +87,12 @@ class FakeHttp:
         self.bgp_rows = copy.deepcopy(BGP_ROWS)
         self.definitions = {1001: definition(1001, "193.0.6.139")}
         self.latest = {1001: RAW}
-        self.ip_search = None        # None: return definitions whose target_ip matches the filter
+        self.ip_search = None  # None: return definitions whose target_ip matches the filter
         self.asn_search = []
 
     def network_info(self, ip):
         import ipaddress
+
         a = ipaddress.ip_address(ip)
         best = None
         for p, asn in self.ip_asn.items():
@@ -93,8 +116,11 @@ class FakeHttp:
             return {"data": {"bgp_state": copy.deepcopy(self.bgp_rows)}}
         if u.path.endswith("/measurements/"):
             if "target_ip" in q:
-                rows = self.ip_search if self.ip_search is not None else \
-                    [d for d in self.definitions.values() if d["target_ip"] == q["target_ip"]]
+                rows = (
+                    self.ip_search
+                    if self.ip_search is not None
+                    else [d for d in self.definitions.values() if d["target_ip"] == q["target_ip"]]
+                )
             else:
                 rows = self.asn_search
             return {"results": copy.deepcopy(rows)}
@@ -108,14 +134,21 @@ class FakeHttp:
                 raise ps.ApiError(404, "No measurement found", url)
             return copy.deepcopy(self.definitions[mid])
         if u.path.endswith("/probes/"):
-            return {"results": [{"id": 1, "asn_v4": SRC_HOSTING, "country_code": "US"},
-                                {"id": 2, "asn_v4": SRC_OTHER, "country_code": "BR"},
-                                {"id": 4, "asn_v4": SRC_OTHER, "country_code": "BR"}]}
+            return {
+                "results": [
+                    {"id": 1, "asn_v4": SRC_HOSTING, "country_code": "US"},
+                    {"id": 2, "asn_v4": SRC_OTHER, "country_code": "BR"},
+                    {"id": 4, "asn_v4": SRC_OTHER, "country_code": "BR"},
+                ]
+            }
         raise AssertionError(f"unexpected GET {url}")
 
     def resources(self, endpoint):
-        return [dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(u).query)).get("resource")
-                for u in self.urls if f"/{endpoint}/" in u]
+        return [
+            dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(u).query)).get("resource")
+            for u in self.urls
+            if f"/{endpoint}/" in u
+        ]
 
 
 def run(body, http=None):
@@ -135,7 +168,10 @@ class Validation(unittest.TestCase):
 
     def test_ranges_are_rejected_with_guidance(self):
         for rng in ("193.0.0.0/21", "193.0.6.139/32", "2001:67c:2e8::/48"):
-            with self.subTest(rng=rng), self.assertRaisesRegex(ps.UserError, "single IP address, not a range"):
+            with (
+                self.subTest(rng=rng),
+                self.assertRaisesRegex(ps.UserError, "single IP address, not a range"),
+            ):
                 ps.validate_request({"target": rng})
         params = ps.validate_request({"target": "193.0.6.139"})
         self.assertEqual(params["target_resource"], "193.0.6.139")
@@ -175,7 +211,12 @@ class EndToEnd(unittest.TestCase):
         self.assertFalse(traces[4]["reached_origin_as"])
         self.assertTrue(any("no hop mapped" in w for w in r["warnings"]))
         self.assertTrue(any("other_origin" in w and "unsupported_path" in w for w in r["warnings"]))
-        forbidden = ("mitigation contact", "single point of failure", "carried", "qualify for a perimeter blocklist")
+        forbidden = (
+            "mitigation contact",
+            "single point of failure",
+            "carried",
+            "qualify for a perimeter blocklist",
+        )
         self.assertFalse(any(term in json.dumps(r) for term in forbidden))
         names = {n["asn"]: n["name"] for n in r["graph"]["nodes"]}
         self.assertEqual(names[ORIGIN], f"Holder AS{ORIGIN}")
@@ -191,13 +232,19 @@ class EndToEnd(unittest.TestCase):
     def test_other_origins_are_listed_not_just_counted(self):
         job, _ = run({"target": "193.0.6.139"})
         others = job.result["control_plane"]["other_origins"]
-        self.assertEqual(others, [{"prefix": "193.0.0.0/21", "asn": 65000, "name": "Holder AS65000", "peers": 1}])
+        self.assertEqual(
+            others, [{"prefix": "193.0.0.0/21", "asn": 65000, "name": "Holder AS65000", "peers": 1}]
+        )
         self.assertTrue(any("AS65000 for 193.0.0.0/21" in w for w in job.result["warnings"]))
 
     def test_active_or_enforcement_inputs_rejected(self):
-        for body in ({"tier": "atlas", "api_key": "secret", "probe_sets": "area:WW:1"},
-                     {"suspect_asns": "AS14061"}, {"suspect_asns": "not-even-an-asn"},
-                     {"api_key": "secret"}, {"control_plane": "false"}):
+        for body in (
+            {"tier": "atlas", "api_key": "secret", "probe_sets": "area:WW:1"},
+            {"suspect_asns": "AS14061"},
+            {"suspect_asns": "not-even-an-asn"},
+            {"api_key": "secret"},
+            {"control_plane": "false"},
+        ):
             with self.subTest(body=body), self.assertRaises(ps.UserError):
                 ps.validate_request({"target": "193.0.6.139", **body})
         params = ps.validate_request({"target": "193.0.6.139"})
@@ -216,6 +263,7 @@ class EndToEnd(unittest.TestCase):
                 if "bgp-state" in url:
                     raise ps.ApiError(503, "fixture unavailable", url)
                 return original(url, **kw)
+
             http.get_json = unavailable
             job, _ = run({"target": "193.0.6.139", "control_plane": control}, http)
             self.assertEqual(job.status, "done", job.error)
@@ -223,7 +271,9 @@ class EndToEnd(unittest.TestCase):
             self.assertIsNone(r["control_plane"]["routes"])
             self.assertIsNone(r["routing_context"]["calculations"]["bgp_fraction"]["denominator"])
             self.assertTrue(all(x["cp_routes"] is None for x in r["routing_context"]["adjacencies"]))
-            self.assertEqual(r["control_plane"]["source"]["status"], "unavailable" if control else "not_requested")
+            self.assertEqual(
+                r["control_plane"]["source"]["status"], "unavailable" if control else "not_requested"
+            )
 
     def test_no_measurements(self):
         http = FakeHttp()
@@ -233,7 +283,7 @@ class EndToEnd(unittest.TestCase):
         r = job.result
         self.assertEqual(r["traces"], [])
         self.assertIsNone(r["meta"]["data_scope"])
-        self.assertTrue(r["routing_context"]["adjacencies"])      # still derived from RIS
+        self.assertTrue(r["routing_context"]["adjacencies"])  # still derived from RIS
         self.assertTrue(any("routing observations only" in s for s in r["summary"]))
 
 
@@ -287,7 +337,7 @@ class SuppliedMeasurements(unittest.TestCase):
 
     def test_discovered_definitions_are_rechecked(self):
         http = FakeHttp()
-        http.ip_search = [definition(1001, "198.51.100.7")]   # search filter ignored upstream
+        http.ip_search = [definition(1001, "198.51.100.7")]  # search filter ignored upstream
         http.asn_search = []
         job, _ = run({"target": "193.0.6.139"}, http)
         self.assertEqual(job.result["traces"], [])
@@ -312,9 +362,19 @@ class PerRunCache(unittest.TestCase):
         if "network-info" in url:
             body = {"data": {"asns": [str(self.state["origin"])], "prefix": "193.0.0.0/21"}}
         elif "bgp-state" in url:
-            body = {"data": {"query_time": self.state["query_time"], "nr_routes": 1,
-                             "bgp_state": [{"target_prefix": "193.0.0.0/21", "source_id": "00-1",
-                                            "path": [6939, UP_A, self.state["origin"]]}]}}
+            body = {
+                "data": {
+                    "query_time": self.state["query_time"],
+                    "nr_routes": 1,
+                    "bgp_state": [
+                        {
+                            "target_prefix": "193.0.0.0/21",
+                            "source_id": "00-1",
+                            "path": [6939, UP_A, self.state["origin"]],
+                        }
+                    ],
+                }
+            }
         elif "as-overview" in url:
             body = {"data": {"holder": "Example"}}
         else:
@@ -326,11 +386,12 @@ class PerRunCache(unittest.TestCase):
 
             def __exit__(self, *exc):
                 return False
+
         return Response(json.dumps(body).encode())
 
     def test_each_run_refetches_and_reports_true_times(self):
         http = ps.Http(pause=0)
-        with patch.object(ps.urllib.request, "urlopen", self.urlopen):
+        with patch.object(http, "_open", self.urlopen):
             first, _ = run({"target": "193.0.6.139"}, http)
             calls_first = len(self.calls)
             self.state.update(origin=64999, query_time="2026-10-03T20:00:00")
@@ -345,7 +406,7 @@ class PerRunCache(unittest.TestCase):
     def test_duplicate_requests_within_a_run_are_deduplicated(self):
         http, job = ps.Http(pause=0), ps.Job()
         url = ps.stat_url("as-overview", resource="AS3333")
-        with patch.object(ps.urllib.request, "urlopen", self.urlopen):
+        with patch.object(http, "_open", self.urlopen):
             http.get_json(url, job=job)
             http.get_json(url, job=job)
             http.get_json(url, job=ps.Job())

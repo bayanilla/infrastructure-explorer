@@ -1,0 +1,529 @@
+{
+  "kind": "footprint_run",
+  "meta": {
+    "tool": "M\u00facaro | Pathfinder",
+    "version": "0.4.0",
+    "generated_utc": "2026-10-04T16:00:00Z",
+    "resolution_generated_utc": "2026-10-04T15:58:00Z"
+  },
+  "settings": {
+    "org_keywords": [
+      "example org"
+    ],
+    "include_low_visibility": false,
+    "visibility_threshold": null,
+    "visibility_threshold_note": "RIPEstat default; the value is taken from RIPE's response messages."
+  },
+  "inputs": {
+    "rows_read": 10,
+    "header": "ip",
+    "accepted": 7,
+    "duplicates": 0,
+    "rejected_total": 2,
+    "rejected": [
+      {
+        "line": 9,
+        "value": "bad-row",
+        "reason": "Not an IP address or CIDR prefix."
+      },
+      {
+        "line": 10,
+        "value": "10.0.0.1",
+        "reason": "10.0.0.1 is special-use or private address space."
+      }
+    ],
+    "rejected_truncated": false,
+    "entries": [
+      {
+        "value": "193.0.1.1",
+        "kind": "ip",
+        "note": null,
+        "line": 2
+      },
+      {
+        "value": "193.0.2.2",
+        "kind": "ip",
+        "note": null,
+        "line": 3
+      },
+      {
+        "value": "193.0.4.4",
+        "kind": "ip",
+        "note": null,
+        "line": 4
+      },
+      {
+        "value": "46.20.1.1",
+        "kind": "ip",
+        "note": null,
+        "line": 5
+      },
+      {
+        "value": "81.10.1.1",
+        "kind": "ip",
+        "note": null,
+        "line": 6
+      },
+      {
+        "value": "52.0.1.1",
+        "kind": "ip",
+        "note": null,
+        "line": 7
+      },
+      {
+        "value": "31.0.5.5",
+        "kind": "ip",
+        "note": null,
+        "line": 8
+      }
+    ]
+  },
+  "resolution": [
+    {
+      "input": "193.0.1.1",
+      "kind": "ip",
+      "line": 2,
+      "covering_prefix": "193.0.0.0/21",
+      "origins": [
+        {
+          "asn": 3333,
+          "holder": "EXAMPLE-ORG-NET Example Org Site A"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "193.0.2.2",
+      "kind": "ip",
+      "line": 3,
+      "covering_prefix": "193.0.0.0/21",
+      "origins": [
+        {
+          "asn": 3333,
+          "holder": "EXAMPLE-ORG-NET Example Org Site A"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "reused",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "193.0.4.4",
+      "kind": "ip",
+      "line": 4,
+      "covering_prefix": "193.0.4.0/24",
+      "origins": [
+        {
+          "asn": 4200,
+          "holder": "HOSTCO Hosting Provider"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "46.20.1.1",
+      "kind": "ip",
+      "line": 5,
+      "covering_prefix": "46.20.0.0/22",
+      "origins": [
+        {
+          "asn": 3333,
+          "holder": "EXAMPLE-ORG-NET Example Org Site A"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "81.10.1.1",
+      "kind": "ip",
+      "line": 6,
+      "covering_prefix": "81.10.0.0/20",
+      "origins": [
+        {
+          "asn": 5555,
+          "holder": "<script>untrusted</script> Example Org Site B"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "52.0.1.1",
+      "kind": "ip",
+      "line": 7,
+      "covering_prefix": "52.0.0.0/16",
+      "origins": [
+        {
+          "asn": 16509,
+          "holder": "AMAZON-02"
+        }
+      ],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "announced"
+    },
+    {
+      "input": "31.0.5.5",
+      "kind": "ip",
+      "line": 8,
+      "covering_prefix": null,
+      "origins": [],
+      "more_specifics": [],
+      "more_specifics_total": 0,
+      "more_specifics_truncated": false,
+      "method": "queried",
+      "filtered_routes": 0,
+      "error": null,
+      "status": "not_announced"
+    }
+  ],
+  "status_counts": {
+    "announced": 6,
+    "not_announced": 1
+  },
+  "origins": [
+    {
+      "asn": 3333,
+      "holder": "EXAMPLE-ORG-NET Example Org Site A",
+      "entries": 3,
+      "inputs": [
+        "193.0.1.1",
+        "193.0.2.2",
+        "46.20.1.1"
+      ],
+      "prefixes": [
+        "193.0.0.0/21",
+        "46.20.0.0/22"
+      ],
+      "multi_origin_entries": 0,
+      "share": 0.4286,
+      "inputs_truncated": false,
+      "default_selected": true,
+      "matched_keyword": "example org",
+      "confirmed": true
+    },
+    {
+      "asn": 4200,
+      "holder": "HOSTCO Hosting Provider",
+      "entries": 1,
+      "inputs": [
+        "193.0.4.4"
+      ],
+      "prefixes": [
+        "193.0.4.0/24"
+      ],
+      "multi_origin_entries": 0,
+      "share": 0.1429,
+      "inputs_truncated": false,
+      "default_selected": false,
+      "matched_keyword": null,
+      "confirmed": false
+    },
+    {
+      "asn": 5555,
+      "holder": "<script>untrusted</script> Example Org Site B",
+      "entries": 1,
+      "inputs": [
+        "81.10.1.1"
+      ],
+      "prefixes": [
+        "81.10.0.0/20"
+      ],
+      "multi_origin_entries": 0,
+      "share": 0.1429,
+      "inputs_truncated": false,
+      "default_selected": true,
+      "matched_keyword": "example org",
+      "confirmed": true
+    },
+    {
+      "asn": 16509,
+      "holder": "AMAZON-02",
+      "entries": 1,
+      "inputs": [
+        "52.0.1.1"
+      ],
+      "prefixes": [
+        "52.0.0.0/16"
+      ],
+      "multi_origin_entries": 0,
+      "share": 0.1429,
+      "inputs_truncated": false,
+      "default_selected": false,
+      "matched_keyword": null,
+      "confirmed": false
+    }
+  ],
+  "confirmed_asns": [
+    3333,
+    5555
+  ],
+  "adjacency": {
+    "per_asn": [
+      {
+        "asn": 3333,
+        "holder": "EXAMPLE-ORG-NET Example Org Site A",
+        "source": {
+          "name": "RIPEstat ASN Neighbors",
+          "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS3333&sourceapp=mucaro-infrastructure-explorer",
+          "status": "available",
+          "retrieved_at": "2026-10-04T16:00:00Z",
+          "query_starttime": "2026-10-04T00:00:00",
+          "query_endtime": "2026-10-04T00:00:00",
+          "latest_time": "2026-10-04T00:00:00",
+          "version": "3.2",
+          "messages": [
+            "Query time has been set to the latest available time"
+          ],
+          "neighbor_counts": {
+            "left": 1,
+            "right": 0,
+            "unique": 1,
+            "uncertain": 0
+          },
+          "excluded": 0,
+          "truncated": false
+        },
+        "neighbors": [
+          {
+            "asn": 174,
+            "type": "left",
+            "power": 40,
+            "v4_peers": 300,
+            "v6_peers": 0
+          },
+          {
+            "asn": 1299,
+            "type": "left",
+            "power": 120,
+            "v4_peers": 900,
+            "v6_peers": 0
+          },
+          {
+            "asn": 5555,
+            "type": "right",
+            "power": 5,
+            "v4_peers": 12,
+            "v6_peers": 0
+          }
+        ]
+      },
+      {
+        "asn": 5555,
+        "holder": "<script>untrusted</script> Example Org Site B",
+        "source": {
+          "name": "RIPEstat ASN Neighbors",
+          "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS5555&sourceapp=mucaro-infrastructure-explorer",
+          "status": "available",
+          "retrieved_at": "2026-10-04T16:00:00Z",
+          "query_starttime": "2026-10-04T00:00:00",
+          "query_endtime": "2026-10-04T00:00:00",
+          "latest_time": "2026-10-04T00:00:00",
+          "version": "3.2",
+          "messages": [
+            "Query time has been set to the latest available time"
+          ],
+          "neighbor_counts": {
+            "left": 1,
+            "right": 0,
+            "unique": 1,
+            "uncertain": 0
+          },
+          "excluded": 1,
+          "truncated": false
+        },
+        "neighbors": [
+          {
+            "asn": 1299,
+            "type": "left",
+            "power": 80,
+            "v4_peers": 500,
+            "v6_peers": 20
+          },
+          {
+            "asn": 64999,
+            "type": "uncertain",
+            "power": 1,
+            "v4_peers": 1,
+            "v6_peers": 0
+          }
+        ]
+      }
+    ],
+    "neighbors": [
+      {
+        "asn": 1299,
+        "name": "Holder AS1299",
+        "relations": [
+          {
+            "your_asn": 3333,
+            "type": "left",
+            "power": 120,
+            "v4_peers": 900,
+            "v6_peers": 0
+          },
+          {
+            "your_asn": 5555,
+            "type": "left",
+            "power": 80,
+            "v4_peers": 500,
+            "v6_peers": 20
+          }
+        ],
+        "is_confirmed_asn": false,
+        "your_asn_count": 2,
+        "positions": [
+          "left"
+        ],
+        "max_power": 120,
+        "max_v4_peers": 900,
+        "max_v6_peers": 20
+      },
+      {
+        "asn": 174,
+        "name": "=HYPERLINK(\"http://evil.example\",\"x\")",
+        "relations": [
+          {
+            "your_asn": 3333,
+            "type": "left",
+            "power": 40,
+            "v4_peers": 300,
+            "v6_peers": 0
+          }
+        ],
+        "is_confirmed_asn": false,
+        "your_asn_count": 1,
+        "positions": [
+          "left"
+        ],
+        "max_power": 40,
+        "max_v4_peers": 300,
+        "max_v6_peers": 0
+      },
+      {
+        "asn": 5555,
+        "name": "<script>untrusted</script> Example Org Site B",
+        "relations": [
+          {
+            "your_asn": 3333,
+            "type": "right",
+            "power": 5,
+            "v4_peers": 12,
+            "v6_peers": 0
+          }
+        ],
+        "is_confirmed_asn": true,
+        "your_asn_count": 1,
+        "positions": [
+          "right"
+        ],
+        "max_power": 5,
+        "max_v4_peers": 12,
+        "max_v6_peers": 0
+      },
+      {
+        "asn": 64999,
+        "name": null,
+        "relations": [
+          {
+            "your_asn": 5555,
+            "type": "uncertain",
+            "power": 1,
+            "v4_peers": 1,
+            "v6_peers": 0
+          }
+        ],
+        "is_confirmed_asn": false,
+        "your_asn_count": 1,
+        "positions": [
+          "uncertain"
+        ],
+        "max_power": 1,
+        "max_v4_peers": 1,
+        "max_v6_peers": 0
+      }
+    ],
+    "field_definitions": {
+      "position": "RIPEstat ASN Neighbors 'type' field. left: the neighbor appears before your ASN in observed AS paths (toward the route collector). right: it appears after your ASN. uncertain: seen on the left only as a direct peer of a RIS route collector.",
+      "power": "RIPEstat 'power': the number of AS paths containing this neighbor relationship with the stated position.",
+      "v4_peers": "RIPEstat 'v4_peers': total number of IPv4 routes with this neighbor relationship seen by RIS peers. Despite the field name, this counts routes, not distinct peers.",
+      "v6_peers": "RIPEstat 'v6_peers': the same count for IPv6 routes."
+    }
+  },
+  "sources": {
+    "prefix_overview": {
+      "name": "RIPEstat prefix-overview",
+      "url": "https://stat.ripe.net/data/prefix-overview/data.json?resource=%7Bentry%7D&sourceapp=mucaro-infrastructure-explorer",
+      "lookups": 7,
+      "reused": 1,
+      "query_times": [
+        "2026-10-04T08:00:00"
+      ],
+      "filtered_routes": 0,
+      "messages": []
+    },
+    "asn_neighbors": {
+      "name": "RIPEstat ASN Neighbors",
+      "url": "https://stat.ripe.net/data/asn-neighbours/data.json?resource=AS%7Basn%7D&sourceapp=mucaro-infrastructure-explorer",
+      "query_times": [
+        "2026-10-04T00:00:00"
+      ]
+    }
+  },
+  "summary": [
+    "7 footprint entries map to 4 origin ASNs; 2 confirmed as yours.",
+    "RIS observes 4 distinct networks adjacent to the confirmed ASNs (RIPEstat ASN Neighbors, 2026-10-04T00:00:00).",
+    "1 of them is adjacent to more than one confirmed ASN.",
+    "Adjacency is observed BGP position. It does not establish a business relationship, traffic share, ownership or intent."
+  ],
+  "warnings": [
+    "SYNTHETIC TEST FIXTURE: source responses are fabricated; this is not live infrastructure evidence.",
+    "1 malformed neighbor record(s) for AS5555 were excluded."
+  ],
+  "methodology": [
+    "Pathfinder reads public RIPE data only. It does not contact any host in the footprint or schedule measurements.",
+    "Each entry is resolved with RIPEstat prefix-overview to the announced prefix covering it and that prefix's origin ASN(s). A prefix entry that contains more-specific announcements is mapped to their origins as well.",
+    "A resolved covering prefix is reused for later entries only when it was read directly, its list of more-specific announcements is complete, and the entry falls outside all of them.",
+    "RIPEstat leaves out routes seen by fewer RIS peers than its visibility threshold unless low-visibility routes are included. The threshold and the number of filtered routes are recorded with the run.",
+    "Origin ASNs are listed with the share of footprint entries that map to them. Only ASNs the analyst confirmed are queried for neighbors; the rest stay in the record.",
+    "Adjacency comes from RIPEstat ASN Neighbors: BGP neighbors of each confirmed ASN as observed by RIS. Position, path and route counts are RIPE's fields. They describe observed routing, not business relationships, traffic share, ownership or intent.",
+    "Route collectors do not see every session. Private peering and sessions whose routes are not propagated toward RIS peers can be missing.",
+    "For entries in shared provider space (cloud, CDN, hosting), the origin and its neighbors belong to the provider.",
+    "This record is a point-in-time snapshot. Source times are recorded per lookup."
+  ],
+  "requests": {
+    "resolution": 7,
+    "adjacency": 3
+  }
+}

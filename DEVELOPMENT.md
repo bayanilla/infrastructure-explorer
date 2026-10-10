@@ -1,52 +1,72 @@
 # Development and verification
 
-## Local startup and source trust
-
-Pathfinder requires Python 3.10+ and uses the standard library. Start it with:
+Run from this directory with Python 3.10+:
 
 ```sh
-python3 probe_server.py
+python3 -m pathfinder
 ```
 
-The application uses Python's normal verified HTTPS setup. If the runtime points
-to a missing CA file, it uses the operating system CA bundle while keeping
-certificate and hostname verification enabled. Do not disable verification to
-work around a RIPE connection error; repair the local trust configuration if no
-valid trust store is available.
-
-## Verification
-
-Run the Python suite:
+Verification uses frozen synthetic responses and never contacts an investigated
+host. Run:
 
 ```sh
-python3 -m unittest -v
+python3 -m unittest
+node test_rendering.mjs
+node test_jobs.mjs
+node test_services.mjs
+python3 tools/gen_limits.py --check
 ```
 
-When Node.js is available, run renderer and export checks:
+For optional development tooling:
 
 ```sh
-node test_report_rendering.js report_fixtures.json
-node test_footprint_rendering.js footprint_fixtures.json
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/ruff check --no-respect-gitignore pathfinder probe_server.py test_*.py tools
+.venv/bin/ruff format --check --no-respect-gitignore pathfinder probe_server.py test_*.py tools
 ```
 
-Tests use frozen synthetic source responses. They cover validation, public-only
-operation, per-run caching, source and measurement checks, cancellation,
-unknown-versus-empty evidence, reports and exports, escaping untrusted content,
-and footprint resolution/adjacency behaviors. Fixture data is fabricated and is
-not live intelligence or an accuracy benchmark.
+The application needs no third-party runtime packages. The supplied CI configuration
+runs these checks on Python 3.10/3.14 and Node 22. Remote CI results must be checked on GitHub; local checks do not establish
+remote CI success. The npm/CI commands run the renderer, poller, and service-renderer checks.
 
-## Local security characteristics
+`tests/baseline_reports.json` contains five reports generated from the original
+application at commit `57585a9`, using fabricated fixture responses. The normalization
+helper excludes generation/retrieval times, run IDs, version metadata, a new BGP
+error detail and the renamed sourceapp query parameter. It retains observation
+times, evidence records, unknown states, calculations, warnings and other behavior.
 
-The server binds to loopback by default, checks expected Host and Origin headers,
-rejects cross-origin POSTs, sets a restrictive content-security policy, and
-limits request bodies. These measures do not make it appropriate to expose on a
-shared network without a separate security design.
+The Python suite includes baseline regressions, characterization comparisons,
+evidence, source-gate, import, HTTP-boundary, and Shodan adapter tests. Use the
+test runner output for the current count. Node checks cover report rendering,
+service details/pagination markup, and the shared poller.
 
-The BGP Lookup repository informed visual design and domain research only.
-Pathfinder is standalone and does not depend on a local BGP Lookup checkout.
-The supplied Coquí artwork is stored locally and is not retrieved from the
-reference project at runtime.
+Manual checks completed locally: saved Footprint/IP imports, neighbor sorting,
+expandable details, map selection, BGP layer filtering, and no browser console
+errors. A live Footprint lookup for `193.0.6.139` completed with AS3333 using one
+RIPE request. Bulk live performance, upstream schema evolution and PDF pagination
+were not revalidated in this edition.
 
-This repository has no `LICENSE` file. Do not infer unrestricted reuse rights
-from repository visibility. Never commit credentials, private observations, or
-unredacted reports.
+Use `examples/` only for interface testing: all data is synthetic. Never publish
+private inputs, credentials or unredacted exports. There is no LICENSE supplied;
+do not infer unrestricted redistribution rights from public data availability.
+
+
+## Optional Shodan verification
+
+Shodan fixtures cover credential validation, read-only endpoint restrictions,
+response and resource bounds, source failures, unknown totals, timestamp and
+service validation, and bounded detail fields. HTTP tests cover settings and
+service routes and rejection of removed Censys/Netlas routes. Renderer checks
+exercise escaped service details and complete export content.
+
+Recent local verification passed 83 Python tests plus the renderer, poller, and
+service-renderer checks. A synthetic browser exercise checked 20-row pagination,
+service disclosure, escaped banners, and explicit additional-page loading.
+These checks do not validate live Shodan coverage, account permissions, or bulk
+performance. No production-readiness or comparative-accuracy claim follows.
+
+The baseline refactoring came from commit `57585a9`. The original application
+and BGP reference checkout remain separate; they are not runtime dependencies.
+Do not restart a live local session without explaining that its jobs and Shodan
+credential will be cleared. Never read or print a configured key for debugging.
