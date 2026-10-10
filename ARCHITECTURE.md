@@ -1,8 +1,8 @@
 # Architecture and engineering decisions
 
-The design applies principles from the four books to a local routing-context
-proof of concept. It does not claim to implement every technique in those books
-or to meet a production-service standard.
+This document explains the implementation responsibilities and tradeoffs of a
+local routing-context proof of concept. It does not claim to meet a
+production-service standard.
 
 ## Responsibilities
 
@@ -37,7 +37,7 @@ The compatibility entry point calls the package. A separate `test_support.py`
 facade lets the existing regression fixtures exercise moved functions without
 making production modules depend on the old monolith.
 
-## A Philosophy of Software Design
+## Module boundaries
 
 Source access is a deep module: callers ask for public evidence instead of
 coordinating TLS, retries and cache behavior. Pure calculations hide routing
@@ -54,7 +54,7 @@ compatibility. BGP evidence is typed internally; Atlas and Footprint adapter
 records remain normalized dictionaries with their established source states.
 Moving every field to a class is not required for this refactoring.
 
-## The Pragmatic Programmer
+## Behavioral compatibility and consistency
 
 The existing behavior is the starting contract. Five representative reports were
 captured from the unchanged application using synthetic responses. Characterization
@@ -69,7 +69,7 @@ do not recalculate routing evidence. Migration has one server-side implementatio
 Changes are reversible: this edition runs in a separate directory and on a
 separate port. It introduces neither enforcement nor active measurement scheduling.
 
-## Software Engineering at Google
+## Testing and maintainability
 
 Tests cover behavior and contracts rather than file layout: source validation,
 more-specific routing, unknown versus empty evidence, immutable snapshots,
@@ -84,7 +84,7 @@ Remaining maturity work includes independent review, a published release process
 compatibility tests on additional platforms, and verification of remote CI results.
 Automated tests are evidence of checked behavior, not a routing-accuracy benchmark.
 
-## Designing Data-Intensive Applications
+## Evidence integrity and data lifecycle
 
 Available-empty, partial, unavailable and unrequested are distinct evidence
 states. An immutable BGP snapshot records source query, observation time,
@@ -125,16 +125,6 @@ provenance. That would be a distinct feature with its own tests.
 - The JSON cache budget bounds serialized size; Python object overhead and
   calculated reports consume additional memory.
 - Source observations do not prove packet paths, topology or commercial relationships.
-
-## References
-
-These are engineering applications, not quotations or claims of author endorsement.
-
-- John Ousterhout, *A Philosophy of Software Design*.
-- Andrew Hunt and David Thomas, *The Pragmatic Programmer*.
-- Titus Winters, Tom Manshreck and Hyrum Wright, *Software Engineering at Google*.
-- Martin Kleppmann and Chris Riccomini, *Designing Data-Intensive Applications*, second edition.
-
 
 ## Optional service observations
 

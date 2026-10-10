@@ -176,7 +176,7 @@ Pathfinder does not encrypt saved reports.
 - [Methods, sources, and interpretation limits](METHODS.md) — detailed evidence
   meanings, coverage, and source-specific limits.
 - [Architecture](ARCHITECTURE.md) — implementation responsibilities and engineering
-  decisions inspired by the four books.
+  decisions.
 - [Development and verification](DEVELOPMENT.md) — checks and validation limits.
 - [Local API](API.md) — integration contracts for developers.
 - [Configured routing and job limits](docs/LIMITS.md) — generated technical reference;
